@@ -1,7 +1,13 @@
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
+
+import static java.lang.Integer.parseInt;
+import static java.util.Optional.ofNullable;
 
 public class CommandInterpreter {
     static final Logger log = Logger.getLogger(CommandInterpreter.class);
@@ -9,6 +15,8 @@ public class CommandInterpreter {
     private final DataOutputStream dos;
     private final BufferedReader is;
     private boolean stopped = false;
+
+    Map<String, String> context = new HashMap<>();
 
     public CommandInterpreter(InputStream is, OutputStream os) {
         this.is = new BufferedReader(new InputStreamReader(is));
@@ -31,7 +39,9 @@ public class CommandInterpreter {
     }
 
     public void executeCommand() throws IOException {
-        String[] tokens = is.readLine().split(" ");
+        String[] tokens = ofNullable(is.readLine())
+                .orElseThrow(() -> new IOException("empty string"))
+                .split(" ");
         if (tokens.length < 1) return;
         if (tokens[0].equals("QUIT")) {
             quitCommand(tokens);
@@ -45,18 +55,47 @@ public class CommandInterpreter {
             featCommand(tokens);
         } else if (tokens[0].equals("LIST")) {
             listCommand(tokens);
+        } else if (tokens[0].equals("PWD")) {
+            pwdCommand(tokens);
+        } else if (tokens[0].equals("TYPE")) {
+            typeCommand(tokens);
+        } else if (tokens[0].equals("PORT")) {
+            portCommand(tokens);
         } else {
             log.debug(String.format("command is not implemented - [%s]", tokens[0]));
             writeMessage("502 \n");
         }
     }
 
-    private void listCommand(String[] tokens) throws IOException {
-        if (tokens.length == 1) {
-
-        } else if (tokens.length == 2) {
-
+    private void portCommand(String[] tokens) throws IOException {
+        if (tokens.length < 2) {
+            return;
         }
+        String[] numbers = tokens[1].split(",");
+        String host = String.join(".", numbers[0], numbers[1], numbers[2], numbers[3]);
+        context.put("host", host);
+        context.put("port", Integer.toString(parseInt(numbers[4]) * 256 + parseInt(numbers[5])));
+        writeMessage("200 \n");
+    }
+
+    private void typeCommand(String[] tokens) throws IOException {
+        writeMessage("200 \n");
+    }
+
+    private void pwdCommand(String[] tokens) throws IOException {
+        writeMessage(String.format("257 %s\n", new File("/").toString()));
+    }
+
+    private void listCommand(String[] tokens) throws IOException {
+        Socket socket = new Socket(context.get("host"), parseInt(context.get("port")));
+        writeMessage("150 \n");
+        BufferedOutputStream os = new BufferedOutputStream(socket.getOutputStream());
+        for (File f : new File(".").listFiles()) {
+            os.write(f.toString().getBytes());
+        }
+        os.flush();
+        socket.close();
+        writeMessage("250 \n");
     }
 
     private void featCommand(String[] tokens) throws IOException {
