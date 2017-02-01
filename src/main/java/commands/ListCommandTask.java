@@ -1,8 +1,6 @@
 package commands;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.net.Socket;
+import core.FtpSession;
 
 public class ListCommandTask implements Command {
 

@@ -1,6 +1,8 @@
 package commands;
 
-import commands.Command;
+import core.FtpSession;
+
+import java.io.IOException;
 
 import static java.lang.Integer.parseInt;
 
@@ -15,14 +17,14 @@ public class PORTCommand implements Command {
     }
 
     @Override
-    public void execute() {
-//        if (tokens.length < 2) {
-//            return;
-//        }
-//        String[] numbers = tokens[1].split(",");
-//        String host = String.join(".", numbers[0], numbers[1], numbers[2], numbers[3]);
-//        session.put("host", host);
-//        session.put("port", Integer.toString(parseInt(numbers[4]) * 256 + parseInt(numbers[5])));
-//        writeMessage("200 \n");
+    public void execute() throws IOException {
+        if (args.length < 1) {
+            return;
+        }
+        String[] numbers = args[0].split(",");
+        String host = String.join(".", numbers[0], numbers[1], numbers[2], numbers[3]);
+        session.setDataHost(host);
+        session.setDataPort(parseInt(numbers[4]) * 256 + parseInt(numbers[5]));
+        session.getControlConnection().write("200 \n");
     }
 }

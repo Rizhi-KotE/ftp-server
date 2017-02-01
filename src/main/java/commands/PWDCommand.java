@@ -1,5 +1,9 @@
 package commands;
 
+import core.FtpSession;
+
+import java.io.IOException;
+
 public class PWDCommand implements Command {
     private final FtpSession session;
     private final String[] args;
@@ -11,8 +15,11 @@ public class PWDCommand implements Command {
     }
 
     @Override
-    public void execute() {
-//        writeMessage(String.format("257 %s\n", new File("/").toString()));
+    public void execute() throws IOException {
+        session.getControlConnection().writeSequence("257 ");
+        session.getControlConnection().writeSequence(session.getWorkingDirectory());
+        session.getControlConnection().writeSequence("\n");
+        session.getControlConnection().flush();
     }
 
 }

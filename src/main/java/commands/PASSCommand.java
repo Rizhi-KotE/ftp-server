@@ -1,5 +1,9 @@
 package commands;
 
+import core.FtpSession;
+
+import java.io.IOException;
+
 public class PASSCommand implements Command {
     private final FtpSession session;
     private final String[] args;
@@ -11,7 +15,7 @@ public class PASSCommand implements Command {
     }
 
     @Override
-    public void execute() {
-//        writeMessage("230 \n");
+    public void execute() throws IOException {
+        session.getControlConnection().write("230 \n");
     }
 }

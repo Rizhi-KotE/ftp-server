@@ -1,4 +1,4 @@
-package commands;
+package core;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +9,16 @@ public class FtpSession {
     private int dataPort;
     private String dataHost;
     private String workingDirectory;
-    private Socket dataSocket;
+    private Connection controlConnection;
+
+    private Connection dataConnection;
     private Thread currentTask;
-    private final Connection controlConnection;
 
     public FtpSession(Socket socket) throws IOException {
         controlConnection = new Connection(socket);
+        dataPort = 0;
+        dataHost = "";
+        workingDirectory = "/";
     }
 
     public Thread getCurrentTask() {
@@ -23,14 +27,6 @@ public class FtpSession {
 
     public void setCurrentTask(Thread currentTask) {
         this.currentTask = currentTask;
-    }
-
-    public Socket getDataSocket() {
-        return dataSocket;
-    }
-
-    public void setDataSocket(Socket dataSocket) {
-        this.dataSocket = dataSocket;
     }
 
     public int getDataPort() {

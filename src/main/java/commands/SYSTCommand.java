@@ -1,5 +1,9 @@
 package commands;
 
+import core.FtpSession;
+
+import java.io.IOException;
+
 public class SYSTCommand implements Command {
     private final FtpSession session;
     private final String[] args;
@@ -12,8 +16,7 @@ public class SYSTCommand implements Command {
     }
 
     @Override
-    public void execute() {
-        //TODO ??
-//        writeMessage("215 UNIX\n");
+    public void execute() throws IOException {
+        session.getControlConnection().write("215 UNIX\n");
     }
 }
