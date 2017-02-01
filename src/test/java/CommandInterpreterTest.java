@@ -1,5 +1,8 @@
+import commands.FtpSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.io.*;
 
@@ -17,7 +20,8 @@ public class CommandInterpreterTest {
         PipedInputStream is = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream();
 
-        commandInterpreter = new CommandInterpreter(is, os);
+        FtpSession any = Mockito.any(FtpSession.class);
+        commandInterpreter = new CommandInterpreter(any);
 
         outStream = new PipedInputStream(os);
         in = new DataOutputStream(new PipedOutputStream(is));
