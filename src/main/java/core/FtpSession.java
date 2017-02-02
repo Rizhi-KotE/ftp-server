@@ -1,8 +1,8 @@
 package core;
 
+import exceptions.NotLoggedException;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 
 public class FtpSession {
@@ -10,12 +10,14 @@ public class FtpSession {
     private String dataHost;
     private String workingDirectory;
     private Connection controlConnection;
+    private String user;
 
     private Connection dataConnection;
     private Thread currentTask;
+    private boolean logged = false;
 
-    public FtpSession(Socket socket) throws IOException {
-        controlConnection = new Connection(socket);
+    public FtpSession(Connection controlConnection) throws IOException {
+        this.controlConnection = controlConnection;
         dataPort = 0;
         dataHost = "";
         workingDirectory = "/";
@@ -29,16 +31,8 @@ public class FtpSession {
         this.currentTask = currentTask;
     }
 
-    public int getDataPort() {
-        return dataPort;
-    }
-
     public void setDataPort(int dataPort) {
         this.dataPort = dataPort;
-    }
-
-    public String getDataHost() {
-        return dataHost;
     }
 
     public void setDataHost(String dataHost) {
@@ -53,18 +47,41 @@ public class FtpSession {
         this.workingDirectory = workingDirectory;
     }
 
-    private InputStream controlInputStream;
-    private OutputStream controlOutputStream;
-
-    public InputStream getControlInputStream() {
-        return controlInputStream;
-    }
-
-    public OutputStream getControlOutputStream() {
-        return controlOutputStream;
-    }
 
     public Connection getControlConnection() {
         return controlConnection;
+    }
+
+    public void putUser(String user) {
+        this.user = user;
+    }
+
+    public boolean isLogged() {
+        return logged;
+    }
+
+    public void putPassword(String anyPasswordMayBeHere) throws NotLoggedException {
+        if ("anonymous".equals(user)) logged = true;
+        else {
+            user = null;
+            throw new NotLoggedException(String.format("user - [%s]", user));
+        }
+    }
+
+    public void logout() {
+        logged = false;
+    }
+
+    public void putDataConnection(Connection connection) {
+        dataConnection = connection;
+    }
+
+    public Connection getDataConnection() {
+        return dataConnection;
+    }
+
+    public void putDataConnection(String host, int i) throws IOException {
+        Socket socket = new Socket(host, i);
+        dataConnection = new Connection(socket);
     }
 }

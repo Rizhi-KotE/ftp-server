@@ -1,6 +1,9 @@
 package commands;
 
+import core.Connection;
 import core.FtpSession;
+
+import java.io.File;
 
 public class ListCommandTask implements Command {
 
@@ -16,17 +19,13 @@ public class ListCommandTask implements Command {
     @Override
     public void execute() {
         try {
-//            Socket socket = new Socket(ftpSession.getDataHost(), ftpSession.getDataPort());
-//            ftpSession.setDataSocket(socket);
-//            new Thread(() -> {
-//                BufferedOutputStream os = new BufferedOutputStream(socket.getOutputStream());
-//                for (File f : new File(".").listFiles()) {
-//                    os.write(f.toString().getBytes());
-//                }
-//                os.flush();
-//                socket.close();
-//                writeMessage("250 \n");
-//            }).start();
+            ftpSession.getControlConnection().write("125 \n");
+            Connection dataConnection = ftpSession.getDataConnection();
+                for (File f : new File(".").listFiles()) {
+                    dataConnection.writeSequence(f.toString());
+                }
+                dataConnection.flush();
+                ftpSession.getControlConnection().write("250 \n");
         } catch (Exception e) {
             e.printStackTrace();
         }

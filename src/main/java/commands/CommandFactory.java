@@ -1,8 +1,7 @@
 package commands;
 
 import core.FtpSession;
-import exeptions.NotImplementedFunctionException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import exceptions.NotImplementedFunctionException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,6 +11,10 @@ import java.util.function.BiFunction;
 import static java.util.Optional.ofNullable;
 
 public class CommandFactory {
+    public static CommandFactory getInstance(){
+        return Singleton.instance.getFactory();
+    }
+
     public Collection<String> getCommands() {
         return commands.keySet();
     }
@@ -36,7 +39,7 @@ public class CommandFactory {
                 .apply(session, args);
     }
 
-    public enum Singleton {
+    private enum Singleton {
         instance(new CommandFactory());
 
         private CommandFactory factory;

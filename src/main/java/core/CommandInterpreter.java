@@ -1,7 +1,7 @@
 package core;
 
 import commands.CommandFactory;
-import exeptions.NotImplementedFunctionException;
+import exceptions.NotImplementedFunctionException;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -31,8 +31,6 @@ public class CommandInterpreter {
                 executeCommand();
         } catch (NoSuchElementException e) {
             log.debug("connection is closed");
-        } catch (NotImplementedFunctionException e) {
-            log.info(String.format("command is not implemented - [%s]", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -42,15 +40,20 @@ public class CommandInterpreter {
     }
 
     public void executeCommand() throws Exception {
-        String[] tokens = ofNullable(connection.readLine())
-                .orElseThrow(() -> new IOException("empty string"))
-                .split(" ");
-        String[] args = Arrays.stream(tokens).skip(1).toArray(String[]::new);
-        if (tokens.length < 1) return;
-        if (tokens[0].equals("QUIT")) {
-            quitCommand(args);
-        } else {
-            factory.get(tokens[0], args, session).execute();
+        try {
+            String[] tokens = ofNullable(connection.readLine())
+                    .orElseThrow(() -> new IOException("empty string"))
+                    .split(" ");
+            String[] args = Arrays.stream(tokens).skip(1).toArray(String[]::new);
+            if (tokens.length < 1) return;
+            if (tokens[0].equals("QUIT")) {
+                quitCommand(args);
+            } else {
+                factory.get(tokens[0], args, session).execute();
+            }
+        } catch (NotImplementedFunctionException e) {
+            writeMessage(String.format("502 command [%s]\n", e.getMessage()));
+            log.info(String.format("command is not implemented - [%s]", e.getMessage()));
         }
     }
 

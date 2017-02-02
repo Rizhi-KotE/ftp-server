@@ -1,5 +1,6 @@
 package commands;
 
+import core.Connection;
 import core.FtpSession;
 
 import java.io.IOException;
@@ -23,8 +24,7 @@ public class PORTCommand implements Command {
         }
         String[] numbers = args[0].split(",");
         String host = String.join(".", numbers[0], numbers[1], numbers[2], numbers[3]);
-        session.setDataHost(host);
-        session.setDataPort(parseInt(numbers[4]) * 256 + parseInt(numbers[5]));
+        session.putDataConnection(host, parseInt(numbers[4]) * 256 + parseInt(numbers[5]));
         session.getControlConnection().write("200 \n");
     }
 }

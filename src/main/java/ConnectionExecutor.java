@@ -1,4 +1,5 @@
 import commands.CommandFactory;
+import core.Connection;
 import core.FtpSession;
 import core.CommandInterpreter;
 import org.apache.log4j.Logger;
@@ -20,7 +21,8 @@ public class ConnectionExecutor implements Runnable, AutoCloseable {
     @Override
     public void run() {
         try {
-            new CommandInterpreter(new FtpSession(socket), CommandFactory.Singleton.instance.getFactory())
+            Connection connection = new Connection(socket);
+            new CommandInterpreter(new FtpSession(connection), CommandFactory.getInstance())
                     .run();
         } catch (Exception e) {
             e.printStackTrace();
