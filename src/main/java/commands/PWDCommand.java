@@ -1,6 +1,7 @@
 package commands;
 
 import core.FtpSession;
+import exceptions.RequestedActionNotTakenException;
 
 import java.io.IOException;
 
@@ -15,9 +16,9 @@ public class PWDCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException {
+    public void execute() throws IOException, RequestedActionNotTakenException {
         session.getControlConnection().writeSequence("257 ");
-        session.getControlConnection().writeSequence(session.getWorkingDirectory());
+        session.getControlConnection().writeSequence(session.getPath());
         session.getControlConnection().writeSequence("\n");
         session.getControlConnection().flush();
     }

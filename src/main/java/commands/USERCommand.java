@@ -1,10 +1,13 @@
 package commands;
 
 import core.FtpSession;
+import exceptions.NoSuchMessageException;
 import exceptions.SyntaxErrorInArgumentsException;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static utils.MessageFactory.getMessage;
 
 public class USERCommand implements Command {
     private final FtpSession session;
@@ -17,10 +20,10 @@ public class USERCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, SyntaxErrorInArgumentsException {
-        if (args.length < 1) throw new SyntaxErrorInArgumentsException("USER", Arrays.toString(args));
+    public void execute() throws IOException, SyntaxErrorInArgumentsException, NoSuchMessageException {
+        if (args.length == 0) throw new SyntaxErrorInArgumentsException("USER", Arrays.toString(args));
         session.putUser(args[0]);
-        session.getControlConnection().write("331 \n");
+        session.getControlConnection().write(getMessage("331"));
     }
 
 }

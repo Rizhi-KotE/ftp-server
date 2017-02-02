@@ -1,6 +1,7 @@
 package core;
 
 import commands.CommandFactory;
+import exceptions.NoSuchMessageException;
 import exceptions.NotImplementedFunctionException;
 import org.apache.log4j.Logger;
 
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import static java.util.Optional.ofNullable;
+import static utils.MessageFactory.getMessage;
 
 public class CommandInterpreter {
     static final Logger log = Logger.getLogger(CommandInterpreter.class);
@@ -26,11 +28,14 @@ public class CommandInterpreter {
 
     public void run() {
         try {
-            writeMessage("220 \n");
+            writeMessage(getMessage("220"));
             while (!stopped)
                 executeCommand();
         } catch (NoSuchElementException e) {
+            log.debug(e.getMessage());
             log.debug("connection is closed");
+        } catch (NoSuchMessageException e) {
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -52,13 +57,13 @@ public class CommandInterpreter {
                 factory.get(tokens[0], args, session).execute();
             }
         } catch (NotImplementedFunctionException e) {
-            writeMessage(String.format("502 command [%s]\n", e.getMessage()));
+            writeMessage(getMessage("502"));
             log.info(String.format("command is not implemented - [%s]", e.getMessage()));
         }
     }
 
-    private void quitCommand(String[] args) throws IOException {
-        writeMessage("221 \n");
+    private void quitCommand(String[] args) throws IOException, NoSuchMessageException {
+        writeMessage(getMessage("221"));
         stopInterpreter();
     }
 

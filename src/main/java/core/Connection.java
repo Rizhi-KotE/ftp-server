@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
@@ -22,14 +23,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes());
+        bos.write(message.getBytes(StandardCharsets.US_ASCII));
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes());
+        bos.write(message.getBytes(StandardCharsets.US_ASCII));
     }
 
     public void flush() throws IOException {
@@ -37,6 +38,13 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-        return reader.readLine();
+        String message = reader.readLine();
+        log.debug(message);
+        return message;
+    }
+
+    public void close() throws IOException {
+        log.debug("CLOSE CONNECTION");
+        socket.close();
     }
 }

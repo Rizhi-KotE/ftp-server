@@ -20,7 +20,7 @@ public class Server {
             log.info(String.format("listen port [%d]", ss.getLocalPort()));
             while (true) {
                 ConnectionExecutor executor = new ConnectionExecutor(ss.accept());
-                executor.run();
+                new Thread(() -> executor.run()).start();
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -19,12 +19,12 @@ public class FEATCommand implements Command {
 
     @Override
     public void execute() throws IOException {
-        session.getControlConnection().writeSequence("211-Features\n");
+        session.getControlConnection().writeSequence("211-Features\r\n");
         for(String command: factory.getCommands()){
             session.getControlConnection().writeSequence(command);
-            session.getControlConnection().writeSequence("\n");
+            session.getControlConnection().writeSequence("\r\n");
         }
-        session.getControlConnection().writeSequence("211 End\n");
+        session.getControlConnection().writeSequence("211 End\r\n");
         session.getControlConnection().flush();
     }
 }

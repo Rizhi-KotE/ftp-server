@@ -1,17 +1,20 @@
 package core;
 
 import exceptions.NotLoggedException;
+import exceptions.RequestedActionNotTakenException;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.NoSuchFileException;
 
 public class FtpSession {
+    private final FileSystem fileSystem;
     private int dataPort;
     private String dataHost;
-    private String workingDirectory;
+    private File workingDirectory;
     private Connection controlConnection;
     private String user;
-
     private Connection dataConnection;
     private Thread currentTask;
     private boolean logged = false;
@@ -20,7 +23,12 @@ public class FtpSession {
         this.controlConnection = controlConnection;
         dataPort = 0;
         dataHost = "";
-        workingDirectory = "/";
+        workingDirectory = new File(".");
+        fileSystem = new FileSystem(workingDirectory);
+    }
+
+    public FileSystem getFileSystem() {
+        return fileSystem;
     }
 
     public Thread getCurrentTask() {
@@ -39,11 +47,11 @@ public class FtpSession {
         this.dataHost = dataHost;
     }
 
-    public String getWorkingDirectory() {
+    public File getWorkingDirectory() {
         return workingDirectory;
     }
 
-    public void setWorkingDirectory(String workingDirectory) {
+    public void setWorkingDirectory(File workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
 
@@ -83,5 +91,13 @@ public class FtpSession {
     public void putDataConnection(String host, int i) throws IOException {
         Socket socket = new Socket(host, i);
         dataConnection = new Connection(socket);
+    }
+
+    public void changeWorkingDirectory(String path) throws NoSuchFileException {
+        workingDirectory = fileSystem.getFile(path);
+    }
+
+    public String getPath() throws RequestedActionNotTakenException {
+        return fileSystem.getPath(workingDirectory);
     }
 }

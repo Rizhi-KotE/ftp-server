@@ -17,6 +17,6 @@ public class SYSTCommand implements Command {
 
     @Override
     public void execute() throws IOException {
-        session.getControlConnection().write("215 UNIX\n");
+        session.getControlConnection().write("215 UNIX\r\n");
     }
 }

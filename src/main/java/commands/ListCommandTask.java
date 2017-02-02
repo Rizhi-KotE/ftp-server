@@ -2,8 +2,12 @@ package commands;
 
 import core.Connection;
 import core.FtpSession;
+import exceptions.NoSuchMessageException;
 
 import java.io.File;
+import java.io.IOException;
+
+import static utils.MessageFactory.getMessage;
 
 public class ListCommandTask implements Command {
 
@@ -17,17 +21,17 @@ public class ListCommandTask implements Command {
 
 
     @Override
-    public void execute() {
-        try {
-            ftpSession.getControlConnection().write("125 \n");
-            Connection dataConnection = ftpSession.getDataConnection();
-                for (File f : new File(".").listFiles()) {
-                    dataConnection.writeSequence(f.toString());
-                }
-                dataConnection.flush();
-                ftpSession.getControlConnection().write("250 \n");
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void execute() throws IOException, NoSuchMessageException {
+        File dir = ftpSession.getWorkingDirectory();
+        if (args.length >= 1) dir = ftpSession.getFileSystem().getFile(args[0]);
+        ftpSession.getControlConnection().write(getMessage("150"));
+        Connection dataConnection = ftpSession.getDataConnection();
+        for (File f : dir.listFiles()) {
+            dataConnection.writeSequence(f.getName());
+            dataConnection.writeSequence("\n");
         }
+        dataConnection.flush();
+        dataConnection.close();
+        ftpSession.getControlConnection().write(getMessage("226"));
     }
 }

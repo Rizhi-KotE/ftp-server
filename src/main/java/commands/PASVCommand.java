@@ -1,6 +1,7 @@
 package commands;
 
 import core.FtpSession;
+import exceptions.NotImplementedFunctionException;
 import exceptions.NotLoggedException;
 import exceptions.SyntaxErrorInArgumentsException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -17,8 +18,8 @@ public class PASVCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, SyntaxErrorInArgumentsException, NotLoggedException {
-        throw new NotImplementedException();
+    public void execute() throws IOException, SyntaxErrorInArgumentsException, NotLoggedException, NotImplementedFunctionException {
+        throw new NotImplementedFunctionException("PASV");
 //        if (args.length > 1) throw new SyntaxErrorInArgumentsException("PASV", Arrays.toString(args));
 //        if (!session.isLogged()) throw new NotLoggedException("");
 //        Socket socket = new Socket();
