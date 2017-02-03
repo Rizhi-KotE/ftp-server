@@ -2,10 +2,7 @@ package core;
 
 import org.apache.log4j.Logger;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
@@ -13,8 +10,8 @@ public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
 
     private final BufferedReader reader;
-    private Socket socket;
     private final BufferedOutputStream bos;
+    private Socket socket;
 
     public Connection(Socket socket) throws IOException {
         this.socket = socket;
@@ -23,14 +20,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes(StandardCharsets.US_ASCII));
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes(StandardCharsets.US_ASCII));
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
     public void flush() throws IOException {
@@ -46,5 +43,15 @@ public class Connection {
     public void close() throws IOException {
         log.debug("CLOSE CONNECTION");
         socket.close();
+    }
+
+    public void write(InputStream inputStream) throws IOException {
+        String line;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        reader.readLine();
+        while ((line = reader.readLine()) != null) {
+            writeSequence(line + "\r\n");
+        }
+        flush();
     }
 }

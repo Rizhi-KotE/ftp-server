@@ -18,8 +18,8 @@ public class PWDCommand implements Command {
     @Override
     public void execute() throws IOException, RequestedActionNotTakenException {
         session.getControlConnection().writeSequence("257 ");
-        session.getControlConnection().writeSequence(session.getPath());
-        session.getControlConnection().writeSequence("\n");
+        session.getControlConnection().writeSequence(session.getWorkingDirectory().getAbsolutePath());
+        session.getControlConnection().writeSequence("\r\n");
         session.getControlConnection().flush();
     }
 

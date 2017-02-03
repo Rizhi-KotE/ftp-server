@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.nio.file.NoSuchFileException;
 
 public class FtpSession {
-    private final FileSystem fileSystem;
     private int dataPort;
     private String dataHost;
     private File workingDirectory;
@@ -24,12 +23,8 @@ public class FtpSession {
         dataPort = 0;
         dataHost = "";
         workingDirectory = new File(".");
-        fileSystem = new FileSystem(workingDirectory);
     }
 
-    public FileSystem getFileSystem() {
-        return fileSystem;
-    }
 
     public Thread getCurrentTask() {
         return currentTask;
@@ -94,10 +89,6 @@ public class FtpSession {
     }
 
     public void changeWorkingDirectory(String path) throws NoSuchFileException {
-        workingDirectory = fileSystem.getFile(path);
-    }
-
-    public String getPath() throws RequestedActionNotTakenException {
-        return fileSystem.getPath(workingDirectory);
+        workingDirectory = new File(path);
     }
 }
