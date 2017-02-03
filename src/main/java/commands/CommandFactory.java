@@ -23,11 +23,11 @@ public class CommandFactory {
 
     public CommandFactory() {
         commands.put("LIST", (session, args) -> new ListCommandTask(session, args));
-        commands.put("FEAT", (session, args) -> new FEATCommand(session, args, this));
+//        commands.put("FEAT", (session, args) -> new FEATCommand(session, args, this));
         commands.put("PASS", (session, args) -> new PASSCommand(session, args));
         commands.put("PORT", (session, args) -> new PORTCommand(session, args));
         commands.put("PWD", (session, args) -> new PWDCommand(session, args));
-        commands.put("SYST", (session, args) -> new SYSTCommand(session, args));
+//        commands.put("SYST", (session, args) -> new SYSTCommand(session, args));
         commands.put("USER", (session, args) -> new USERCommand(session, args));
         commands.put("TYPE", (session, args) -> new TYPECommand(session, args));
         commands.put("CWD", (session, args) -> new CWDCommand(session, args));

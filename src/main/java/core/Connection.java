@@ -20,14 +20,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes(StandardCharsets.UTF_8));
+        bos.write(message.getBytes(StandardCharsets.US_ASCII));
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes(StandardCharsets.UTF_8));
+        bos.write(message.getBytes(StandardCharsets.US_ASCII));
     }
 
     public void flush() throws IOException {
@@ -46,12 +46,13 @@ public class Connection {
     }
 
     public void write(InputStream inputStream) throws IOException {
-        String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        reader.readLine();
-        while ((line = reader.readLine()) != null) {
-            writeSequence(line + "\r\n");
+        byte[] bytes = new byte[0xFF];
+        int readen;
+        while ((readen = inputStream.read(bytes)) > 0) {
+            String message = new String(bytes, 0, readen);
+            writeSequence(message);
         }
+        writeSequence("\r\n");
         flush();
     }
 }
