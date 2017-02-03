@@ -23,7 +23,7 @@ public class CWDCommand implements Command {
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
         if(args.length == 0) throw new SyntaxErrorInArgumentsException("CWD", Arrays.toString(args));
-        session.changeWorkingDirectory(args[0]);
+        session.getFileSystem().changeDir(args[0]);
         session.getControlConnection().write(getMessage("200"));
     }
 }

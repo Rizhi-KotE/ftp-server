@@ -7,8 +7,10 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static utils.MessageFactory.getMessage;
@@ -28,11 +30,11 @@ public class ListCommandTask implements Command {
     @Override
     public void execute() throws IOException, NoSuchMessageException {
         try {
-            File dir = ftpSession.getWorkingDirectory();
-            if (args.length >= 1) dir = new File(args[0]);
+            List<File> files = ftpSession.getFileSystem().getFilesList();
+            if (args.length >= 1) files = ftpSession.getFileSystem().getFileList(args[0]);
             ftpSession.getControlConnection().write(getMessage("150"));
             Connection dataConnection = ftpSession.getDataConnection();
-            for (File f : dir.listFiles()) {
+            for (File f : files) {
                 String s = makeLsString(f);
                 dataConnection.writeSequence(s);
             }
@@ -53,13 +55,13 @@ public class ListCommandTask implements Command {
     //https://github.com/mikeweib/Android_FTP/blob/master/src/com/swiftp/CmdLIST.java
     public final static long MS_IN_SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000;
 
-    protected String makeLsString(File file) {
+    protected String makeLsString(File file) throws NoSuchFileException {
         StringBuilder response = new StringBuilder();
 
         if (!file.exists()) {
 
             log.debug("makeLsString had nonexistent file");
-            return null;
+            throw new NoSuchFileException(file.toString());
         }
 
         // See Daniel Bernstein's explanation of /bin/ls format at:
@@ -70,7 +72,7 @@ public class ListCommandTask implements Command {
         // Many clients can't handle files containing these symbols
         if (lastNamePart.contains("*") || lastNamePart.contains("/")) {
             log.debug("Filename omitted due to disallowed character");
-            return null;
+            throw new NoSuchFileException(file.toString());
         } else {
             // The following line generates many calls in large directories
             // staticLog.l(Log.DEBUG, "Filename: " + lastNamePart);
