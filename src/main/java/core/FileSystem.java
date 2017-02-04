@@ -29,6 +29,12 @@ public class FileSystem {
         currentDir = newDir;
     }
 
+    public File createFile(String fileName)
+    {
+            File tempFile = new File(localRoot.getAbsolutePath()+fileName);
+        return tempFile;
+    }
+
     public List<File> getFilesList() throws NotDirectoryException {
         return getFileList(currentDir);
     }
