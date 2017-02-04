@@ -55,4 +55,16 @@ public class Connection {
         writeSequence("\r\n");
         flush();
     }
+
+    public String read() throws IOException {
+        byte[] bytes = new byte[0xFF];
+        int readen;
+        String readenString = new String();
+        StringBuilder stringBuilder = new StringBuilder();
+        InputStream inputStream = socket.getInputStream();
+        while ((readen = inputStream.read(bytes)) > 0) {
+            readenString = stringBuilder.append(bytes).toString();
+        }
+        return readenString;
+    }
 }
