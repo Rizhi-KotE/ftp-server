@@ -44,7 +44,7 @@ public class FileSystem {
         else throw new NotDirectoryException(file.getAbsolutePath());
     }
 
-    private File getLocalFile(String arg) throws NoSuchFileException {
+    public File getLocalFile(String arg) throws NoSuchFileException {
         File file = currentDir.toPath().resolve(arg).toFile();
         if (file.exists())
             return file;
@@ -54,5 +54,9 @@ public class FileSystem {
 
     public String getRemotePath() {
         return currentDir.getAbsolutePath();
+    }
+
+    public String getLocalPath(String path){
+        return currentDir.toPath().resolve(path).toAbsolutePath().toString();
     }
 }

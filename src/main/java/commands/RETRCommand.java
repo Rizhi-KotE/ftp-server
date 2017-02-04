@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
+
+import static utils.MessageFactory.getMessage;
 
 /**
  * Created by rodya on 4.2.17.
@@ -18,17 +21,25 @@ public class RETRCommand implements Command {
     private String[] args;
     private FtpSession ftpSession;
 
+    public RETRCommand(FtpSession session, String[] args) {
+
+        ftpSession = session;
+        this.args = args;
+    }
+
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        File file = ftpSession.getFileSystem().getFile(args[0]);
-
-        if (!file.exists()) {
-            throw new FtpErrorReplyException("550 File not found.");
-        } else {
+        try {
+            File file = ftpSession.getFileSystem().getLocalFile(args[0]);
+            ftpSession.getControlConnection().write(getMessage("150"));
             InputStream inputStream = new FileInputStream(file);
             ftpSession.getDataConnection().write(inputStream);
+            ftpSession.getDataConnection().close();
             inputStream.close();
-            ftpSession.getControlConnection().write("226 Succesfully transferred.");
+            ftpSession.getControlConnection().write("226 Succesfully transferred.\r\n");
+
+        } catch (NoSuchFileException e) {
+            throw new FtpErrorReplyException("550 File not found.\r\n");
         }
     }
 }

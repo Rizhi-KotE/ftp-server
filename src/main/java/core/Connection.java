@@ -2,20 +2,24 @@ package core;
 
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
 
-    private final BufferedReader reader;
+    private final BufferedInputStream bis;
     private final BufferedOutputStream bos;
     private Socket socket;
 
     public Connection(Socket socket) throws IOException {
         this.socket = socket;
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        bis = new BufferedInputStream(socket.getInputStream());
         bos = new BufferedOutputStream(socket.getOutputStream());
     }
 
@@ -35,7 +39,8 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-        String message = reader.readLine();
+        Scanner scanner = new Scanner(bis);
+        String message = scanner.nextLine();
         log.debug(message);
         return message;
     }
@@ -47,24 +52,26 @@ public class Connection {
 
     public void write(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[0xFF];
+        BufferedInputStream input = new BufferedInputStream(inputStream);
         int readen;
-        while ((readen = inputStream.read(bytes)) > 0) {
-            String message = new String(bytes, 0, readen);
-            writeSequence(message);
+        StringBuilder builder = new StringBuilder();
+        while ((readen = input.read(bytes)) != -1) {
+            String s = new String(bytes, 0, readen);
+            builder.append(s);
         }
-        writeSequence("\r\n");
-        flush();
+        builder.append("\r\n");
+        write(builder.toString());
     }
 
     public String read() throws IOException {
         byte[] bytes = new byte[0xFF];
         int readen;
-        String readenString = new String();
         StringBuilder stringBuilder = new StringBuilder();
-        InputStream inputStream = socket.getInputStream();
-        while ((readen = inputStream.read(bytes)) > 0) {
-            readenString = stringBuilder.append(bytes).toString();
+        while ((readen = bis.read()) != -1) {
+            String s = new String(bytes, 0, readen);
+            stringBuilder.append(s);
         }
-        return readenString;
+        log.debug(String.format("---> %s", stringBuilder.toString()));
+        return stringBuilder.toString();
     }
 }

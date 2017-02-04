@@ -31,6 +31,8 @@ public class CommandFactory {
         commands.put("USER", (session, args) -> new USERCommand(session, args));
         commands.put("TYPE", (session, args) -> new TYPECommand(session, args));
         commands.put("CWD", (session, args) -> new CWDCommand(session, args));
+        commands.put("STOR", (session, args) -> new STORCommand(session, args));
+        commands.put("RETR", (session, args) -> new RETRCommand(session, args));
 //        commands.put("PASV", (session, args) -> new PASVCommand(session, args));
     }
 

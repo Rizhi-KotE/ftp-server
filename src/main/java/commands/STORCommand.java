@@ -28,7 +28,7 @@ public class STORCommand implements Command {
      */
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        File file = ftpSession.getFileSystem().getFile(args[0]);
+        File file = ftpSession.getFileSystem().getLocalFile(args[0]);
 
         if (file.exists()) throw new FtpErrorReplyException("500 File already exists.");
         else {
