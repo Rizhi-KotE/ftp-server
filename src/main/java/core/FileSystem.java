@@ -47,7 +47,7 @@ public class FileSystem {
         return Arrays.asList(getFile(arg).listFiles());
     }
 
-    private File getFile(String arg) {
+    public File getFile(String arg) {
         return new File(getLocalPath(arg));
     }
 }
