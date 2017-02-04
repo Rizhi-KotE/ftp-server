@@ -22,7 +22,7 @@ public class FtpSession {
         this.controlConnection = controlConnection;
         dataPort = 0;
         dataHost = "";
-        fileSystem = new FileSystem(new File(".").getAbsoluteFile(), new File(".").getAbsoluteFile());
+        fileSystem = new FileSystem(new File(".").getAbsoluteFile());
     }
 
 
@@ -47,11 +47,12 @@ public class FtpSession {
     }
 
     public void putPassword(String anyPasswordMayBeHere) throws NotLoggedException {
-        if ("anonymous".equals(user)) logged = true;
-        else {
-            user = null;
-            throw new NotLoggedException(String.format("user - [%s]", user));
-        }
+        logged = true;
+//        if ("anonymous".equals(user)) logged = true;
+//        else {
+//            user = null;
+//            throw new NotLoggedException(String.format("user - [%s]", user));
+//        }
     }
 
     public void logout() {

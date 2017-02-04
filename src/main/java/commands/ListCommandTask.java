@@ -32,6 +32,7 @@ public class ListCommandTask implements Command {
         try {
             List<File> files = ftpSession.getFileSystem().getFilesList();
             if (args.length >= 1) files = ftpSession.getFileSystem().getFileList(args[0]);
+
             ftpSession.getControlConnection().write(getMessage("150"));
             Connection dataConnection = ftpSession.getDataConnection();
             for (File f : files) {

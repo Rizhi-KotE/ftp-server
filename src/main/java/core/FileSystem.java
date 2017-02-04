@@ -1,53 +1,58 @@
 package core;
 
+import org.apache.log4j.Logger;
+
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
 import java.util.List;
 
 public class FileSystem {
-    private final File rootDirectory;
+    static final Logger log = Logger.getLogger(FileSystem.class);
+
+    private final File localRoot;
 
     private File currentDir;
 
-    public FileSystem(File rootDirectory, File currentDir) {
-        this.rootDirectory = rootDirectory;
-        this.currentDir = currentDir;
+    public FileSystem(File rootDirectory) {
+        localRoot = rootDirectory;
+        currentDir = localRoot;
+        log.debug(String.format("current directory [%s]", localRoot));
     }
 
-    public String getLocalPath(String dir1) {
-        return rootDirectory.toPath().resolve(Paths.get(dir1)).toString();
+    public void changeDir(String s) throws NoSuchFileException {
+        File newDir = currentDir.toPath().resolve(s).toFile();
+        if (!newDir.exists()) {
+            throw new NoSuchFileException(newDir.getAbsolutePath());
+        }
+        currentDir = newDir;
+    }
+
+    public List<File> getFilesList() throws NotDirectoryException {
+        return getFileList(currentDir);
+    }
+
+    public List<File> getFileList(String arg) throws NotDirectoryException, NoSuchFileException {
+        File file = getLocalFile(arg);
+        log.debug(String.format("file list from directory [%s]", file.getAbsolutePath()));
+        return getFileList(file);
+    }
+
+    private List<File> getFileList(File file) throws NotDirectoryException {
+        if (file.isDirectory()) return Arrays.asList(file.listFiles());
+        else throw new NotDirectoryException(file.getAbsolutePath());
+    }
+
+    private File getLocalFile(String arg) throws NoSuchFileException {
+        File file = currentDir.toPath().resolve(arg).toFile();
+        if (file.exists())
+            return file;
+        else
+            throw new NoSuchFileException(file.getAbsolutePath());
     }
 
     public String getRemotePath() {
-        String absolutePath = rootDirectory.toPath().resolve(currentDir.toPath()).toString();
-        String path = rootDirectory.toPath().relativize(Paths.get(absolutePath)).toString();
-        return "/" + path;
-    }
-
-    public String getLocalPath() {
         return currentDir.getAbsolutePath();
-    }
-
-    public void changeDir(String s) {
-        Path path = Paths.get(s);
-        if (path.isAbsolute()) {
-            currentDir = Paths.get("/").relativize(path).toFile();
-        } else {
-            currentDir = currentDir.toPath().resolve(path).toFile();
-        }
-    }
-
-    public List<File> getFilesList() {
-        return Arrays.asList(new File(getLocalPath()));
-    }
-
-    public List<File> getFileList(String arg) {
-        return Arrays.asList(getFile(arg).listFiles());
-    }
-
-    private File getFile(String arg) {
-        return new File(getLocalPath(arg));
     }
 }
