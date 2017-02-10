@@ -30,20 +30,17 @@ public class STORCommand implements Command {
      */
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        File file;
         try {
-            file = ftpSession.getFileSystem().getLocalFile(args[0]);
+            OutputStream outputStream = ftpSession.getFileSystem().getFileOutputStream(args[0]);
             ftpSession.getControlConnection().write(getMessage("150"));
-            OutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(ftpSession.getDataConnection().read().getBytes());
+            ftpSession.getDataConnection().readTo(outputStream);
             outputStream.close();
             ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
-        }catch(NoSuchFileException e)
-        {
+        } catch (NoSuchFileException e) {
             ftpSession.getControlConnection().write(getMessage("150"));
-            file = ftpSession.getFileSystem().createFile(args[0]);
-            OutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(ftpSession.getDataConnection().read().getBytes());
+            ftpSession.getFileSystem().createFile(args[0]);
+            OutputStream outputStream = ftpSession.getFileSystem().getFileOutputStream(args[0]);
+            ftpSession.getDataConnection().readTo(outputStream);
             outputStream.close();
             ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
         }

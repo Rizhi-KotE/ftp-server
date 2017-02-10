@@ -2,10 +2,7 @@ package core;
 
 import org.apache.log4j.Logger;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -24,14 +21,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes(StandardCharsets.US_ASCII));
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes(StandardCharsets.US_ASCII));
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
     public void flush() throws IOException {
@@ -50,7 +47,7 @@ public class Connection {
         socket.close();
     }
 
-    public void write(InputStream inputStream) throws IOException {
+    public void writeTo(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[0xFF];
         BufferedInputStream input = new BufferedInputStream(inputStream);
         int readen;
@@ -63,15 +60,13 @@ public class Connection {
         write(builder.toString());
     }
 
-    public String read() throws IOException {
+    public String readTo(OutputStream os) throws IOException {
         byte[] bytes = new byte[0xFF];
         int readen;
         StringBuilder stringBuilder = new StringBuilder();
         while ((readen = bis.read()) != -1) {
-            String s = new String(bytes, 0, readen);
-            stringBuilder.append(s);
+            os.write(bytes, 0, readen);
         }
-        log.debug(String.format("---> %s", stringBuilder.toString()));
         return stringBuilder.toString();
     }
 }

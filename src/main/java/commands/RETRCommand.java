@@ -4,8 +4,6 @@ import core.FtpSession;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
@@ -30,10 +28,9 @@ public class RETRCommand implements Command {
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
         try {
-            File file = ftpSession.getFileSystem().getLocalFile(args[0]);
+            InputStream inputStream = ftpSession.getFileSystem().getFileInputStream(args[0]);
             ftpSession.getControlConnection().write(getMessage("150"));
-            InputStream inputStream = new FileInputStream(file);
-            ftpSession.getDataConnection().write(inputStream);
+            ftpSession.getDataConnection().writeTo(inputStream);
             ftpSession.getDataConnection().close();
             inputStream.close();
             ftpSession.getControlConnection().write("226 Succesfully transferred.\r\n");

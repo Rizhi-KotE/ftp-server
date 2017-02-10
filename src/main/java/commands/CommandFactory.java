@@ -23,7 +23,7 @@ public class CommandFactory {
 
     public CommandFactory() {
         commands.put("LIST", (session, args) -> new ListCommandTask(session, args));
-//        commands.put("FEAT", (session, args) -> new FEATCommand(session, args, this));
+        commands.put("FEAT", (session, args) -> new FEATCommand(session, args, this));
         commands.put("PASS", (session, args) -> new PASSCommand(session, args));
         commands.put("PORT", (session, args) -> new PORTCommand(session, args));
         commands.put("PWD", (session, args) -> new PWDCommand(session, args));
@@ -34,6 +34,10 @@ public class CommandFactory {
         commands.put("STOR", (session, args) -> new STORCommand(session, args));
         commands.put("RETR", (session, args) -> new RETRCommand(session, args));
         commands.put("EPRT", (session, args) -> new EPRTCommand(session, args));
+        commands.put("OPTS", (session, args) -> new OPTSCommand(session, args));
+        /////////////////////???????????????????????????????????????????????
+        commands.put("LANG", (session, args) -> new OPTSCommand(session, args));
+
 //        commands.put("PASV", (session, args) -> new PASVCommand(session, args));
     }
 
