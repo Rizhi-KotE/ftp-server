@@ -47,26 +47,19 @@ public class Connection {
         socket.close();
     }
 
-    public void writeTo(InputStream inputStream) throws IOException {
+    public void writeFrom(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[0xFF];
-        BufferedInputStream input = new BufferedInputStream(inputStream);
-        int readen;
-        StringBuilder builder = new StringBuilder();
-        while ((readen = input.read(bytes)) != -1) {
-            String s = new String(bytes, 0, readen);
-            builder.append(s);
+        for (int readen; (readen = inputStream.read(bytes)) != -1; ) {
+            bos.write(bytes, 0, readen);
         }
-        builder.append("\r\n");
-        write(builder.toString());
+        bos.flush();
     }
 
-    public String readTo(OutputStream os) throws IOException {
+    public void readTo(OutputStream os) throws IOException {
         byte[] bytes = new byte[0xFF];
-        int readen;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((readen = bis.read()) != -1) {
+        for (int readen; (readen = bis.read()) != -1; ) {
             os.write(bytes, 0, readen);
         }
-        return stringBuilder.toString();
+        os.flush();
     }
 }

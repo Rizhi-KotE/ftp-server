@@ -38,7 +38,7 @@ public class ListCommandTask implements Command {
 //            exec.waitFor();
 //            InputStream outputStream = exec.getInputStream();
 //            Connection dataConnection = ftpSession.getDataConnection();
-//            dataConnection.writeTo(outputStream);
+//            dataConnection.writeFrom(outputStream);
             ftpSession.getControlConnection().write(getMessage("226"));
             dataConnection.close();
         } catch (Exception e) {

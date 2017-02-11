@@ -1,12 +1,12 @@
 package commands;
 
-import core.*;
+import core.FtpSession;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
-import jdk.nashorn.internal.objects.annotations.Constructor;
 
-import java.io.*;
-import java.net.Socket;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.NoSuchFileException;
 
 import static utils.MessageFactory.getMessage;
@@ -32,17 +32,13 @@ public class STORCommand implements Command {
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
         try {
             OutputStream outputStream = ftpSession.getFileSystem().getFileOutputStream(args[0]);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
             ftpSession.getControlConnection().write(getMessage("150"));
-            ftpSession.getDataConnection().readTo(outputStream);
+            ftpSession.getDataConnection().readTo(bufferedOutputStream);
             outputStream.close();
             ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
         } catch (NoSuchFileException e) {
-            ftpSession.getControlConnection().write(getMessage("150"));
-            ftpSession.getFileSystem().createFile(args[0]);
-            OutputStream outputStream = ftpSession.getFileSystem().getFileOutputStream(args[0]);
-            ftpSession.getDataConnection().readTo(outputStream);
-            outputStream.close();
-            ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
+            e.printStackTrace();
         }
 
     }
