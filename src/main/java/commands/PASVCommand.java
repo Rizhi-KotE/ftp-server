@@ -1,10 +1,9 @@
 package commands;
 
 import core.FtpSession;
-import exceptions.NotImplementedFunctionException;
-import exceptions.NotLoggedException;
-import exceptions.SyntaxErrorInArgumentsException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import exceptions.FTPError530Exception;
+import exceptions.FTPError502Exception;
+import exceptions.PTFError501Exception;
 
 import java.io.IOException;
 
@@ -18,10 +17,10 @@ public class PASVCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, SyntaxErrorInArgumentsException, NotLoggedException, NotImplementedFunctionException {
-        throw new NotImplementedFunctionException("PASV");
-//        if (args.length > 1) throw new SyntaxErrorInArgumentsException("PASV", Arrays.toString(args));
-//        if (!session.isLogged()) throw new NotLoggedException("");
+    public void execute() throws IOException, PTFError501Exception, FTPError530Exception, FTPError502Exception {
+        throw new FTPError502Exception("PASV");
+//        if (args.length > 1) throw new PTFError501Exception("PASV", Arrays.toString(args));
+//        if (!session.isLogged()) throw new FTPError530Exception("");
 //        Socket socket = new Socket();
 //        socket.bind(null);
 //        Connection connection = new Connection(socket);

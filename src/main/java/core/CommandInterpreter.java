@@ -1,8 +1,8 @@
 package core;
 
 import commands.CommandFactory;
+import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
-import exceptions.NotImplementedFunctionException;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -56,9 +56,9 @@ public class CommandInterpreter {
             } else {
                 factory.get(tokens[0], args, session).execute();
             }
-        } catch (NotImplementedFunctionException e) {
-            writeMessage(getMessage("502"));
-            log.info(String.format("command is not implemented - [%s]", e.getMessage()));
+        } catch (FtpErrorReplyException e) {
+            writeMessage(e.getReplyMessage());
+            log.info(e.getReplyMessage());
         }
     }
 

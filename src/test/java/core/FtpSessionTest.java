@@ -1,6 +1,6 @@
 package core;
 
-import exceptions.NotLoggedException;
+import exceptions.FTPError530Exception;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -8,7 +8,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -47,11 +46,11 @@ public class FtpSessionTest {
         assertFalse(ftpSession.isLogged());
     }
 
-    @Test(expected = NotLoggedException.class)
+    @Test(expected = FTPError530Exception.class)
     public void throwNotLoggedExceptionWhenIncorrectPass() throws Exception {
         ftpSession.putUser("user");
 
         ftpSession.putPassword("***");
-        thrown.expect(NotLoggedException.class);
+        thrown.expect(FTPError530Exception.class);
     }
 }

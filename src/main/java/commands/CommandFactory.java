@@ -1,7 +1,7 @@
 package commands;
 
 import core.FtpSession;
-import exceptions.NotImplementedFunctionException;
+import exceptions.FTPError502Exception;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,9 +41,9 @@ public class CommandFactory {
 //        commands.put("PASV", (session, args) -> new PASVCommand(session, args));
     }
 
-    public Command get(String command, String[] args, FtpSession session) throws NotImplementedFunctionException {
+    public Command get(String command, String[] args, FtpSession session) throws FTPError502Exception {
         return ofNullable(commands.get(command))
-                .orElseThrow(() -> new NotImplementedFunctionException(command))
+                .orElseThrow(() -> new FTPError502Exception(command))
                 .apply(session, args);
     }
 

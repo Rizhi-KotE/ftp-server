@@ -22,8 +22,8 @@ public class FileSystem {
         log.debug(String.format("current directory [%s]", localRoot));
     }
 
-    public void changeDir(String s) throws NoSuchFileException {
-        File newDir = currentDir.toPath().resolve(s).toFile();
+    public void changeDir(String s) throws IOException {
+        File newDir = currentDir.toPath().resolve(s).toFile().getCanonicalFile();
         if (!newDir.exists()) {
             throw new NoSuchFileException(newDir.getAbsolutePath());
         }

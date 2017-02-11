@@ -2,7 +2,7 @@ package commands;
 
 import core.FtpSession;
 import exceptions.NoSuchMessageException;
-import exceptions.SyntaxErrorInArgumentsException;
+import exceptions.PTFError501Exception;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,8 +20,8 @@ public class USERCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, SyntaxErrorInArgumentsException, NoSuchMessageException {
-        if (args.length == 0) throw new SyntaxErrorInArgumentsException("USER", Arrays.toString(args));
+    public void execute() throws IOException, PTFError501Exception, NoSuchMessageException {
+        if (args.length == 0) throw new PTFError501Exception("USER", Arrays.toString(args));
         session.putUser(args[0]);
         session.getControlConnection().write(getMessage("331"));
     }

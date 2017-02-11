@@ -1,9 +1,11 @@
 package commands;
 
 import core.FtpSession;
-import exceptions.RequestedActionNotTakenException;
+import exceptions.FTPError550Exception;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class PWDCommand implements Command {
     private final FtpSession session;
@@ -16,9 +18,11 @@ public class PWDCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, RequestedActionNotTakenException {
+    public void execute() throws IOException, FTPError550Exception {
         session.getControlConnection().writeSequence("257 ");
-        session.getControlConnection().writeSequence(session.getFileSystem().getPath());
+        byte[] bytes = session.getFileSystem().getPath().getBytes(StandardCharsets.UTF_8);
+        String s = new String(bytes);
+        session.getControlConnection().writeSequence(s);
         session.getControlConnection().writeSequence("\r\n");
         session.getControlConnection().flush();
     }

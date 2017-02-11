@@ -1,12 +1,10 @@
 package core;
 
-import exceptions.NotLoggedException;
-import exceptions.RequestedActionNotTakenException;
+import exceptions.FTPError530Exception;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.NoSuchFileException;
 
 public class FtpSession {
     private int dataPort;
@@ -46,12 +44,12 @@ public class FtpSession {
         return logged;
     }
 
-    public void putPassword(String anyPasswordMayBeHere) throws NotLoggedException {
+    public void putPassword(String anyPasswordMayBeHere) throws FTPError530Exception {
         logged = true;
 //        if ("anonymous".equals(user)) logged = true;
 //        else {
 //            user = null;
-//            throw new NotLoggedException(String.format("user - [%s]", user));
+//            throw new FTPError530Exception(String.format("user - [%s]", user));
 //        }
     }
 

@@ -1,6 +1,7 @@
 package commands;
 
 import core.FtpSession;
+import exceptions.FTPError550Exception;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
 
@@ -38,7 +39,7 @@ public class RETRCommand implements Command {
             ftpSession.getControlConnection().write("226 Succesfully transferred.\r\n");
 
         } catch (NoSuchFileException e) {
-            throw new FtpErrorReplyException("550 File not found.\r\n");
+            throw new FTPError550Exception(String.format("File is not exists [%s]", args[0]));
         }
     }
 }
