@@ -11,14 +11,6 @@ import java.util.function.BiFunction;
 import static java.util.Optional.ofNullable;
 
 public class CommandFactory {
-    public static CommandFactory getInstance(){
-        return Singleton.instance.getFactory();
-    }
-
-    public Collection<String> getCommands() {
-        return commands.keySet();
-    }
-
     private Map<String, BiFunction<FtpSession, String[], Command>> commands = new HashMap<>();
 
     public CommandFactory() {
@@ -27,7 +19,6 @@ public class CommandFactory {
         commands.put("PASS", (session, args) -> new PASSCommand(session, args));
         commands.put("PORT", (session, args) -> new PORTCommand(session, args));
         commands.put("PWD", (session, args) -> new PWDCommand(session, args));
-//        commands.put("SYST", (session, args) -> new SYSTCommand(session, args));
         commands.put("USER", (session, args) -> new USERCommand(session, args));
         commands.put("TYPE", (session, args) -> new TYPECommand(session, args));
         commands.put("CWD", (session, args) -> new CWDCommand(session, args));
@@ -35,10 +26,14 @@ public class CommandFactory {
         commands.put("RETR", (session, args) -> new RETRCommand(session, args));
         commands.put("EPRT", (session, args) -> new EPRTCommand(session, args));
         commands.put("OPTS", (session, args) -> new OPTSCommand(session, args));
-        /////////////////////???????????????????????????????????????????????
-        commands.put("LANG", (session, args) -> new OPTSCommand(session, args));
+    }
 
-//        commands.put("PASV", (session, args) -> new PASVCommand(session, args));
+    public static CommandFactory getInstance() {
+        return Singleton.instance.getFactory();
+    }
+
+    public Collection<String> getCommands() {
+        return commands.keySet();
     }
 
     public Command get(String command, String[] args, FtpSession session) throws FTPError502Exception {
@@ -48,12 +43,11 @@ public class CommandFactory {
     }
 
     private enum Singleton {
-        instance(new CommandFactory());
-
+        instance;
         private CommandFactory factory;
 
-        Singleton(CommandFactory factory) {
-            this.factory = factory;
+        Singleton() {
+            this.factory = new CommandFactory();
         }
 
         public CommandFactory getFactory() {

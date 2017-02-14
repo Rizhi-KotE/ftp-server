@@ -4,7 +4,7 @@ import core.FtpSession;
 import exceptions.FTPError550Exception;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
-import exceptions.PTFError501Exception;
+import exceptions.FTPError501Exception;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
@@ -25,7 +25,7 @@ public class CWDCommand implements Command {
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
         try {
-            if (args.length == 0) throw new PTFError501Exception("CWD", Arrays.toString(args));
+            if (args.length == 0) throw new FTPError501Exception("CWD", Arrays.toString(args));
             session.getFileSystem().changeDir(args[0]);
             session.getControlConnection().write(getMessage("200"));
         } catch (NoSuchFileException e) {

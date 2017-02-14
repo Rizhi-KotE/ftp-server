@@ -1,14 +1,13 @@
 package commands;
 
 import core.FtpSession;
-import exceptions.FTPError550Exception;
-import exceptions.FtpErrorReplyException;
-import exceptions.NoSuchMessageException;
+import exceptions.*;
 
-import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.NoSuchFileException;
+import java.util.Arrays;
 
 import static utils.MessageFactory.getMessage;
 
@@ -22,24 +21,24 @@ public class RETRCommand implements Command {
     private FtpSession ftpSession;
 
     public RETRCommand(FtpSession session, String[] args) {
-
         ftpSession = session;
         this.args = args;
     }
 
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        try {
-            InputStream inputStream = ftpSession.getFileSystem().getFileInputStream(args[0]);
-            BufferedInputStream inputStream1 = new BufferedInputStream(inputStream);
-            ftpSession.getControlConnection().write(getMessage("150"));
-            ftpSession.getDataConnection().writeFrom(inputStream1);
-            ftpSession.getDataConnection().close();
-            inputStream.close();
-            ftpSession.getControlConnection().write("226 Succesfully transferred.\r\n");
+        if (args.length != 1) throw new FTPError501Exception("RETR", Arrays.toString(args));
+        File localFile = ftpSession.getFileSystem().getLocalFile(args[0]);
+        if (!localFile.exists()) throw new FTPError550Exception(String.format("File is not exists [%s]", args[0]));
+        ftpSession.getControlConnection().write(getMessage("150"));
+        doWork(localFile);
+        ftpSession.getControlConnection().write("226 Succesfully transferred.\r\n");
+    }
 
-        } catch (NoSuchFileException e) {
-            throw new FTPError550Exception(String.format("File is not exists [%s]", args[0]));
+    private void doWork(File localFile) throws IOException {
+        try (InputStream inputStream = new FileInputStream(localFile)) {
+            ftpSession.getDataConnection().writeFrom(inputStream);
+            ftpSession.getDataConnection().close();
         }
     }
 }

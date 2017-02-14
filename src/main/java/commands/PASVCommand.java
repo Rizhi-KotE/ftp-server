@@ -3,7 +3,7 @@ package commands;
 import core.FtpSession;
 import exceptions.FTPError530Exception;
 import exceptions.FTPError502Exception;
-import exceptions.PTFError501Exception;
+import exceptions.FTPError501Exception;
 
 import java.io.IOException;
 
@@ -17,9 +17,9 @@ public class PASVCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, PTFError501Exception, FTPError530Exception, FTPError502Exception {
+    public void execute() throws IOException, FTPError501Exception, FTPError530Exception, FTPError502Exception {
         throw new FTPError502Exception("PASV");
-//        if (args.length > 1) throw new PTFError501Exception("PASV", Arrays.toString(args));
+//        if (args.length > 1) throw new FTPError501Exception("PASV", Arrays.toString(args));
 //        if (!session.isLogged()) throw new FTPError530Exception("");
 //        Socket socket = new Socket();
 //        socket.bind(null);

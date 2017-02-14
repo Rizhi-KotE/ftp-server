@@ -1,8 +1,8 @@
 package commands;
 
 import core.FtpSession;
+import exceptions.FTPError501Exception;
 import exceptions.NoSuchMessageException;
-import exceptions.PTFError501Exception;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,8 +20,8 @@ public class USERCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, PTFError501Exception, NoSuchMessageException {
-        if (args.length == 0) throw new PTFError501Exception("USER", Arrays.toString(args));
+    public void execute() throws IOException, FTPError501Exception, NoSuchMessageException {
+        if (args.length == 0) throw new FTPError501Exception("USER", Arrays.toString(args));
         session.putUser(args[0]);
         session.getControlConnection().write(getMessage("331"));
     }

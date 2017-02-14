@@ -2,18 +2,23 @@ package core;
 
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class FileSystem {
+    //copypaste from
+    //https://github.com/mikeweib/Android_FTP/blob/master/src/com/swiftp/CmdLIST.java
+    public final static long MS_IN_SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000;
     static final Logger log = Logger.getLogger(FileSystem.class);
-
     private final File localRoot;
-
     private File currentDir;
 
     public FileSystem(File rootDirectory) {
@@ -49,17 +54,9 @@ public class FileSystem {
         else throw new NotDirectoryException(file.getAbsolutePath());
     }
 
-    private File getLocalFile(String arg) throws NoSuchFileException {
-        File file = currentDir.toPath().resolve(arg).toFile();
-        if (file.exists())
-            return file;
-        else
-            throw new NoSuchFileException(file.getAbsolutePath());
+    public File getLocalFile(String arg) {
+        return currentDir.toPath().resolve(arg).toFile();
     }
-
-    //copypaste from
-    //https://github.com/mikeweib/Android_FTP/blob/master/src/com/swiftp/CmdLIST.java
-    public final static long MS_IN_SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000;
 
     private String makeLsString(File file) {
         StringBuilder response = new StringBuilder();
@@ -119,15 +116,7 @@ public class FileSystem {
     }
 
     public String getPath() {
+
         return currentDir.getAbsolutePath();
-    }
-
-    public OutputStream getFileOutputStream(String arg) throws IOException {
-        File localFile = getLocalFile(arg);
-        return new FileOutputStream(localFile);
-    }
-
-    public InputStream getFileInputStream(String arg) throws NoSuchFileException, FileNotFoundException {
-        return new FileInputStream(getLocalFile(arg));
     }
 }

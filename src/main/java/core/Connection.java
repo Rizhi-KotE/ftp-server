@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
+    public static final int DEFAULT_BUFFER_SIZE = 8192;
 
     private final BufferedInputStream bis;
     private final BufferedOutputStream bos;
@@ -48,7 +49,7 @@ public class Connection {
     }
 
     public void writeFrom(InputStream inputStream) throws IOException {
-        byte[] bytes = new byte[0xFF];
+        byte[] bytes = new byte[DEFAULT_BUFFER_SIZE];
         for (int readen; (readen = inputStream.read(bytes)) != -1; ) {
             bos.write(bytes, 0, readen);
         }
@@ -56,7 +57,7 @@ public class Connection {
     }
 
     public void readTo(OutputStream os) throws IOException {
-        byte[] bytes = new byte[0xFF];
+        byte[] bytes = new byte[DEFAULT_BUFFER_SIZE];
         for (int readen; (readen = bis.read()) != -1; ) {
             os.write(bytes, 0, readen);
         }

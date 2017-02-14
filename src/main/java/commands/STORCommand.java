@@ -3,13 +3,10 @@ package commands;
 import core.FtpSession;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
+import exceptions.FTPError501Exception;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.NoSuchFileException;
-
-import static utils.MessageFactory.getMessage;
+import java.io.*;
+import java.util.Arrays;
 
 /**
  * Created by rodya on 3.2.17.
@@ -30,17 +27,19 @@ public class STORCommand implements Command {
      */
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        try {
-            OutputStream outputStream = ftpSession.getFileSystem().getFileOutputStream(args[0]);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            ftpSession.getControlConnection().write(getMessage("150"));
-            ftpSession.getDataConnection().readTo(bufferedOutputStream);
-            outputStream.close();
-            ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
-        } catch (NoSuchFileException e) {
-            e.printStackTrace();
-        }
+        if(args.length != 1) throw new FTPError501Exception("STOR", Arrays.toString(args));
+        File localFile = ftpSession.getFileSystem().getLocalFile(args[0]);
+        if(!localFile.exists()) ftpSession.getFileSystem().createFile(args[0]);
+        ftpSession.getControlConnection().write("150 \r\n");
+        doWork(localFile);
+        ftpSession.getControlConnection().write("226 Successfully transferred.\r\n");
+    }
 
+    private void doWork(File localFile) throws IOException {
+        try(OutputStream fos = new FileOutputStream(localFile)){
+            ftpSession.getDataConnection().readTo(fos);
+            ftpSession.getDataConnection().close();
+        }
     }
 
 

@@ -32,12 +32,12 @@ public class CommandInterpreter {
             while (!stopped)
                 executeCommand();
         } catch (NoSuchElementException e) {
-            log.debug(e.getMessage());
+            log.debug(e);
             log.debug("connection is closed");
         } catch (NoSuchMessageException e) {
-            e.printStackTrace();
+            log.debug(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug(e);
         } finally {
             stopInterpreter();
             log.debug("inputStream is destroyed");
@@ -57,6 +57,7 @@ public class CommandInterpreter {
                 factory.get(tokens[0], args, session).execute();
             }
         } catch (FtpErrorReplyException e) {
+            log.debug("", e);
             writeMessage(e.getReplyMessage());
             log.info(e.getReplyMessage());
         }

@@ -1,7 +1,7 @@
 package exceptions;
 
-public class PTFError501Exception extends FtpErrorReplyException {
-    public PTFError501Exception(String command, String args) {
+public class FTPError501Exception extends FtpErrorReplyException {
+    public FTPError501Exception(String command, String args) {
         super(command + args);
     }
 
