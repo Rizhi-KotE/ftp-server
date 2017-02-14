@@ -1,4 +1,4 @@
-import commands.CommandFactory;
+import commands.FTPCommands;
 import core.FtpSession;
 import core.CommandInterpreter;
 import org.junit.Before;
@@ -22,8 +22,7 @@ public class CommandInterpreterTest {
         PipedOutputStream os = new PipedOutputStream();
 
         FtpSession any = Mockito.any(FtpSession.class);
-        CommandFactory commandFactory = CommandFactory.getInstance();
-        commandInterpreter = new CommandInterpreter(any, commandFactory);
+        commandInterpreter = new CommandInterpreter(any);
 
         outStream = new PipedInputStream(os);
         in = new DataOutputStream(new PipedOutputStream(is));

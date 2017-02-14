@@ -19,11 +19,12 @@ public class Server {
         try (ServerSocket ss = new ServerSocket(port)) {
             log.info(String.format("listen port [%d]", ss.getLocalPort()));
             while (true) {
+                ss.setSoTimeout(1000);
                 ConnectionExecutor executor = new ConnectionExecutor(ss.accept());
                 new Thread(() -> executor.run()).start();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug("", e);
         } finally {
             log.info(String.format("server stopped"));
         }

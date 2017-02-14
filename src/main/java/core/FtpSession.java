@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class FtpSession {
-    private int dataPort;
-    private String dataHost;
     private Connection controlConnection;
     private String user;
     private Connection dataConnection;
@@ -18,8 +16,6 @@ public class FtpSession {
 
     public FtpSession(Connection controlConnection) throws IOException {
         this.controlConnection = controlConnection;
-        dataPort = 0;
-        dataHost = "";
         fileSystem = new FileSystem(new File(".").getAbsoluteFile());
     }
 

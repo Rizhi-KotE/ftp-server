@@ -1,4 +1,4 @@
-import commands.CommandFactory;
+import commands.FTPCommands;
 import core.Connection;
 import core.FtpSession;
 import core.CommandInterpreter;
@@ -22,7 +22,7 @@ public class ConnectionExecutor implements Runnable, AutoCloseable {
     public void run() {
         try {
             Connection connection = new Connection(socket);
-            new CommandInterpreter(new FtpSession(connection), CommandFactory.getInstance())
+            new CommandInterpreter(new FtpSession(connection))
                     .run();
         } catch (Exception e) {
             e.printStackTrace();

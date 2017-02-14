@@ -1,6 +1,8 @@
 package core;
 
-import commands.CommandFactory;
+import commands.FTPCommands;
+import exceptions.FTPError502Exception;
+import exceptions.FTPQuitException;
 import exceptions.FtpErrorReplyException;
 import exceptions.NoSuchMessageException;
 import org.apache.log4j.Logger;
@@ -17,13 +19,11 @@ public class CommandInterpreter {
 
     private final Connection connection;
     private final FtpSession session;
-    private final CommandFactory factory;
     private boolean stopped = false;
 
-    public CommandInterpreter(FtpSession session, CommandFactory factory) {
+    public CommandInterpreter(FtpSession session) {
         this.session = session;
         this.connection = session.getControlConnection();
-        this.factory = factory;
     }
 
     public void run() {
@@ -32,10 +32,10 @@ public class CommandInterpreter {
             while (!stopped)
                 executeCommand();
         } catch (NoSuchElementException e) {
-            log.debug(e);
-            log.debug("connection is closed");
+            log.debug("", e);
+            log.info("connection is closed");
         } catch (NoSuchMessageException e) {
-            log.debug(e);
+            log.debug("No such message", e);
         } catch (Exception e) {
             log.debug(e);
         } finally {
@@ -51,11 +51,12 @@ public class CommandInterpreter {
                     .split(" ");
             String[] args = Arrays.stream(tokens).skip(1).toArray(String[]::new);
             if (tokens.length < 1) return;
-            if (tokens[0].equals("QUIT")) {
-                quitCommand(args);
-            } else {
-                factory.get(tokens[0], args, session).execute();
-            }
+            executeCommand(tokens[0], args);
+        } catch (FTPQuitException e) {
+            log.debug("", e);
+            writeMessage(e.getReplyMessage());
+            log.info(e.getReplyMessage());
+            stopInterpreter();
         } catch (FtpErrorReplyException e) {
             log.debug("", e);
             writeMessage(e.getReplyMessage());
@@ -63,9 +64,12 @@ public class CommandInterpreter {
         }
     }
 
-    private void quitCommand(String[] args) throws IOException, NoSuchMessageException {
-        writeMessage(getMessage("221"));
-        stopInterpreter();
+    private void executeCommand(String command, String[] args) throws FtpErrorReplyException, IOException, NoSuchMessageException {
+        try {
+            FTPCommands.valueOf(command).createCommand(session, args).execute();
+        } catch (IllegalArgumentException e) {
+            throw new FTPError502Exception(command);
+        }
     }
 
     private void stopInterpreter() {
