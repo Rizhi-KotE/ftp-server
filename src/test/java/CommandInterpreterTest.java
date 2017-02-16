@@ -1,6 +1,5 @@
-import commands.FTPCommands;
-import core.FtpSession;
-import core.CommandInterpreter;
+import rk.core.FtpSession;
+import rk.core.CommandInterpreter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
