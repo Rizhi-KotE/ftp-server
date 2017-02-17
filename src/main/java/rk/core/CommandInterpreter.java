@@ -3,14 +3,12 @@ package rk.core;
 import rk.commands.FTPCommands;
 import rk.exceptions.FTPQuitException;
 import rk.exceptions.FtpErrorReplyException;
-import rk.exceptions.NoSuchMessageException;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import static rk.utils.MessageFactory.getMessage;
+import static rk.utils.Messages.*;
 
 /**
  * Read commands from control connection and execute it.
@@ -35,7 +33,7 @@ public class CommandInterpreter implements Runnable {
      */
     public void run() {
         try {
-            writeMessage(getMessage("220"));
+            connection.write(MESSAGE_220);
             while (!stopped)
                 executeCommand();
         } catch (NoSuchElementException e) {//connection closed
@@ -50,7 +48,7 @@ public class CommandInterpreter implements Runnable {
     }
 
 
-    private void executeCommand() throws Exception {
+    public void executeCommand() throws Exception {
         try {
             String[] tokens = connection.readLine().split(" ");
             String[] args = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -58,27 +56,17 @@ public class CommandInterpreter implements Runnable {
             FTPCommands.createCommand(tokens[0], session, args).execute();
         } catch (FTPQuitException e) {
             log.debug("", e);
-            writeMessage(e.getReplyMessage());
+            connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
             stopInterpreter();
         } catch (FtpErrorReplyException e) {
             log.debug("", e);
-            writeMessage(e.getReplyMessage());
+            connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
         }
     }
 
     private void stopInterpreter() {
         stopped = true;
-    }
-
-    /**
-     * write message to control connection
-     * @param message - surprisingly message
-     * @throws IOException
-     */
-    private void writeMessage(String message) throws IOException {
-        connection.write(message);
-        connection.flush();
     }
 }

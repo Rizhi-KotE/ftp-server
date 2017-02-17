@@ -1,3 +1,5 @@
+import org.junit.After;
+import rk.core.Connection;
 import rk.core.FtpSession;
 import rk.core.CommandInterpreter;
 import org.junit.Before;
@@ -5,14 +7,20 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static rk.utils.Messages.*;
 
 public class CommandInterpreterTest {
 
     private DataOutputStream in;
     private CommandInterpreter commandInterpreter;
-    private InputStream outStream;
+    private BufferedReader outStream;
 
     @Before
     public void initializeTest() throws IOException {
@@ -20,58 +28,74 @@ public class CommandInterpreterTest {
         PipedInputStream is = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream();
 
-        FtpSession any = Mockito.any(FtpSession.class);
-        commandInterpreter = new CommandInterpreter(any);
+        Socket mock = Mockito.mock(Socket.class);
+        when(mock.getInputStream()).thenReturn(is);
+        when(mock.getOutputStream()).thenReturn(os);
+        Connection connection = new Connection(mock);
+        FtpSession ftpSession = new FtpSession(connection);
+        commandInterpreter = new CommandInterpreter(ftpSession);
 
-        outStream = new PipedInputStream(os);
+        outStream = new BufferedReader(new InputStreamReader(new PipedInputStream(os)));
         in = new DataOutputStream(new PipedOutputStream(is));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        in.close();
+        outStream.close();
     }
 
     @Test
     public void quitCommandShouldCloseConnection() throws Exception {
         pushMessage("QUIT\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("221 \n");
+        assertMessageEqual(MESSAGE_221);
     }
 
     @Test
-    public void userCommandWithoutParameterReply504() throws Exception {
+    public void userCommandWithoutParameterReply501() throws Exception {
         pushMessage("USER\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("504 \n");
+        assertMessageEqual("501 ");
     }
 
     @Test
     public void anonymousShouldAuthenticateWithAnyPassword() throws Exception {
         pushMessage("USER anonymous\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("331 \n");
+        assertMessageEqual(MESSAGE_331);
         pushMessage("PASS any\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("230 \n");
+        assertMessageEqual(MESSAGE_230);
     }
 
     @Test
     public void systCommandShouldReturnUNIX() throws Exception {
         pushMessage("SYST\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("215 UNIX\n");
+        assertMessageEqual("215 UNIX");
     }
 
     @Test
-    public void featCommand() throws Exception {
+    public void featCommandShouldReturnUTF8() throws Exception {
         pushMessage("FEAT\n");
         commandInterpreter.executeCommand();
-        assertMessageEqual("211-Features\n");
-        assertMessageEqual("PASV\n");
-        assertMessageEqual("LIST\n");
-        assertMessageEqual("211 End\n");
+        List<String> strings = readMessage();
+        System.out.println(strings);
+        assertTrue(strings.contains(" UTF8"));
+    }
 
+    private List<String> readMessage() throws IOException {
+        List<String> lines = new ArrayList<>();
+        while (outStream.ready()) {
+            lines.add(outStream.readLine());
+        }
+        return lines;
     }
 
     private void assertMessageEqual(String expected) throws Exception {
-        if (outStream.available() != 0) {
-            byte[] arr = new byte[expected.length()];
+        if (outStream.ready()) {
+            char[] arr = new char[expected.length()];
             outStream.read(arr);
             assertEquals(expected, new String(arr));
         } else
