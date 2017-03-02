@@ -26,7 +26,7 @@ public class FtpSessionTest {
 
     @Before
     public void startUp() throws IOException {
-        Connection any = Mockito.any(Connection.class);
+        Connection any = Mockito.mock(Connection.class);
         ftpSession = new FtpSession(any);
 
     }

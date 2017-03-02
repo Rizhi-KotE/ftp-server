@@ -41,12 +41,11 @@ public class FtpSession {
     }
 
     public void putPassword(String anyPasswordMayBeHere) throws FTPError530Exception {
-        logged = true;
-//        if ("anonymous".equals(user)) logged = true;
-//        else {
-//            user = null;
-//            throw new FTPError530Exception(String.format("user - [%s]", user));
-//        }
+        if ("anonymous".equals(user)) logged = true;
+        else {
+            user = null;
+            throw new FTPError530Exception(String.format("user - [%s]", user));
+        }
     }
 
     public void logout() {

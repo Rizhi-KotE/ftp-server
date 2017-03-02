@@ -45,7 +45,6 @@ public class CommandInterpreterTest {
         outStream.close();
     }
 
-    @Test
     public void quitCommandShouldCloseConnection() throws Exception {
         pushMessage("QUIT\n");
         commandInterpreter.executeCommand();
