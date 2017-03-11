@@ -40,7 +40,7 @@ public class CommandInterpreter implements Runnable {
             log.debug("", e);
             log.info("connection is closed");
         } catch (Exception e) {
-            log.debug(e);
+            log.debug(e, e);
         } finally {
             stopInterpreter();
             log.debug("inputStream is destroyed");

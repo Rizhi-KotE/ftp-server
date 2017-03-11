@@ -9,11 +9,11 @@ import java.util.Scanner;
 
 public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
-    public static final int DEFAULT_BUFFER_SIZE = 8192;
-
+    public static int DEFAULT_BUFFER_SIZE = 8192;
     private final BufferedInputStream bis;
     private final BufferedOutputStream bos;
     private Socket socket;
+    private String charset = StandardCharsets.UTF_8.toString();
 
     public Connection(Socket socket) throws IOException {
         this.socket = socket;
@@ -22,14 +22,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes(StandardCharsets.UTF_8));
+        bos.write(message.getBytes());
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes(StandardCharsets.UTF_8));
+        bos.write(message.getBytes());
     }
 
     public void flush() throws IOException {
@@ -37,7 +37,7 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-        Scanner scanner = new Scanner(bis);
+        Scanner scanner = new Scanner(bis, charset);
         String message = scanner.nextLine();
         log.debug(message);
         return message;
@@ -62,5 +62,9 @@ public class Connection {
             os.write(bytes, 0, readen);
         }
         os.flush();
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 }
