@@ -1,11 +1,15 @@
 package rk.core;
 
+import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +25,7 @@ public class ConnectionTest {
     private Connection connection;
 
     @Before
-    public void initializeTest() throws IOException {
+    public void initializeTest() throws IOException, FtpException {
 
         PipedInputStream is = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream();
@@ -30,7 +34,9 @@ public class ConnectionTest {
         when(mock.getInputStream()).thenReturn(is);
         when(mock.getOutputStream()).thenReturn(os);
         connection = new Connection(mock);
-        FtpSession ftpSession = new FtpSession(connection);
+        BaseUser baseUser = new BaseUser();
+        baseUser.setHomeDirectory(".");
+        FtpSession ftpSession = new FtpSession(connection, new NativeFileSystemFactory().createFileSystemView(baseUser));
         commandInterpreter = new CommandInterpreter(ftpSession);
 
         outStream = new BufferedReader(new InputStreamReader(new PipedInputStream(os)));
@@ -57,6 +63,13 @@ public class ConnectionTest {
         in.write("list загрузки\n".getBytes(StandardCharsets.UTF_8));
         String s = connection.readLine();
         assertEquals("list загрузки", s);
+    }
+
+    @Test
+    public void checkSocketAddress() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(0);
+//        serverSocket.accept();
+        System.out.println(serverSocket.getLocalSocketAddress());//.getHostAddress());
     }
 
     @After

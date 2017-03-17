@@ -1,5 +1,6 @@
 package rk.core;
 
+import org.apache.ftpserver.ftplet.FileSystemView;
 import rk.exceptions.FTPError530Exception;
 
 import java.io.File;
@@ -14,9 +15,9 @@ public class FtpSession {
     private boolean logged = false;
     private final FileSystem fileSystem;
 
-    public FtpSession(Connection controlConnection) throws IOException {
+    public FtpSession(Connection controlConnection, FileSystemView view) throws IOException {
         this.controlConnection = controlConnection;
-        fileSystem = new FileSystem(new File(".").getAbsoluteFile());
+        fileSystem = new FileSystem(view);
     }
 
 
@@ -62,6 +63,12 @@ public class FtpSession {
 
     public void putDataConnection(String host, int i) throws IOException {
         Socket socket = new Socket(host, i);
+        if(dataConnection != null) dataConnection.close();
+        dataConnection = new Connection(socket);
+    }
+
+    public void putDataConnection(Socket socket) throws IOException {
+        if(dataConnection != null) dataConnection.close();
         dataConnection = new Connection(socket);
     }
 }

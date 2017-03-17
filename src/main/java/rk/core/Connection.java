@@ -22,14 +22,14 @@ public class Connection {
     }
 
     public void write(String message) throws IOException {
-        bos.write(message.getBytes());
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
         log.debug(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
         log.debug(message);
-        bos.write(message.getBytes());
+        bos.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
     public void flush() throws IOException {

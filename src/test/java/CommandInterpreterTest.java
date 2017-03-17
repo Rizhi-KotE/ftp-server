@@ -1,3 +1,7 @@
+import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
+import org.apache.ftpserver.ftplet.FileSystemView;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.junit.After;
 import rk.core.Connection;
 import rk.core.FtpSession;
@@ -23,7 +27,7 @@ public class CommandInterpreterTest {
     private BufferedReader outStream;
 
     @Before
-    public void initializeTest() throws IOException {
+    public void initializeTest() throws IOException, FtpException {
 
         PipedInputStream is = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream();
@@ -32,7 +36,8 @@ public class CommandInterpreterTest {
         when(mock.getInputStream()).thenReturn(is);
         when(mock.getOutputStream()).thenReturn(os);
         Connection connection = new Connection(mock);
-        FtpSession ftpSession = new FtpSession(connection);
+        FileSystemView fileSystemView = new NativeFileSystemFactory().createFileSystemView(new BaseUser());
+        FtpSession ftpSession = new FtpSession(connection, fileSystemView);
         commandInterpreter = new CommandInterpreter(ftpSession);
 
         outStream = new BufferedReader(new InputStreamReader(new PipedInputStream(os)));

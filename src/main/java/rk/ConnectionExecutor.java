@@ -1,5 +1,6 @@
 package rk;
 
+import org.apache.ftpserver.ftplet.FileSystemView;
 import rk.core.Connection;
 import rk.core.FtpSession;
 import rk.core.CommandInterpreter;
@@ -15,12 +16,14 @@ public class ConnectionExecutor implements Runnable, AutoCloseable {
     static final Logger log = Logger.getLogger(ConnectionExecutor.class);
 
     private final Socket socket;
+    private final FileSystemView view;
 
     /**
      * @param socket - control connection of FTP-session
      */
-    ConnectionExecutor(Socket socket) {
+    ConnectionExecutor(Socket socket, FileSystemView view) {
         this.socket = socket;
+        this.view = view;
         log.info(String.format("create connection. local port - [%d], remote address - [%s]",
                 socket.getLocalPort(), socket.getRemoteSocketAddress().toString()));
     }
@@ -32,7 +35,7 @@ public class ConnectionExecutor implements Runnable, AutoCloseable {
     public void run() {
         try {
             Connection connection = new Connection(socket);
-            new CommandInterpreter(new FtpSession(connection))
+            new CommandInterpreter(new FtpSession(connection, view))
                     .run();
         } catch (Exception e) {
             e.printStackTrace();

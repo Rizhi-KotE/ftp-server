@@ -1,5 +1,8 @@
 package rk.core;
 
+import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
 import rk.exceptions.FTPError530Exception;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,9 +28,9 @@ public class FtpSessionTest {
     }
 
     @Before
-    public void startUp() throws IOException {
+    public void startUp() throws IOException, FtpException {
         Connection any = Mockito.mock(Connection.class);
-        ftpSession = new FtpSession(any);
+        ftpSession = new FtpSession(any, new NativeFileSystemFactory().createFileSystemView(new BaseUser()));
 
     }
 

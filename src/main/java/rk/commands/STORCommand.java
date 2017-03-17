@@ -39,7 +39,8 @@ public class STORCommand implements Command {
             throw new FTPError501Exception("STOR", Arrays.toString(args));
         }
         File localFile = ftpSession.getFileSystem().getLocalFile(args[0]);
-        if (!localFile.exists()) ftpSession.getFileSystem().createFile(args[0]);
+//        if (!localFile.exists()) ftpSession.getFileSystem().createFile(args[0]);
+
         ftpSession.getControlConnection().write(MESSAGE_150);
         doWork(localFile);
         ftpSession.getControlConnection().write(MESSAGE_226);

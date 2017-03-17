@@ -1,13 +1,17 @@
 package rk.core;
 
+import org.apache.ftpserver.ftplet.FileSystemView;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -18,40 +22,42 @@ public class FileSystem {
     //https://github.com/mikeweib/Android_FTP/blob/master/src/com/swiftp/CmdLIST.java
     public final static long MS_IN_SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000;
     static final Logger log = Logger.getLogger(FileSystem.class);
-    private final File localRoot;
+    private final FileSystemView fileSystem;
     private File currentDir;
 
-    public FileSystem(File rootDirectory) {
-        localRoot = rootDirectory;
-        currentDir = localRoot;
-        log.debug(String.format("current directory [%s]", localRoot));
+    public FileSystem(FileSystemView fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
-    public void changeDir(String s) throws IOException {
-        File newDir = currentDir.toPath().resolve(s).toFile().getCanonicalFile();
-        if (!newDir.exists()) {
-            throw new NoSuchFileException(newDir.getAbsolutePath());
-        }
-        currentDir = newDir;
+    public void changeDir(String s) throws IOException, FtpException {
+        fileSystem.changeWorkingDirectory(s);
     }
 
-    public boolean createFile(String fileName) throws IOException {
-        return currentDir.toPath().resolve(fileName).toFile().createNewFile();
+//    public boolean createFile(String fileName) throws IOException, FtpException {
+//        FtpFile file = fileSystem.getFile(fileName);
+//        file.get
+//    }
+
+    public InputStream fileInputSteam(String name) throws FtpException, IOException {
+        return fileSystem.getFile(name).createInputStream(0);
     }
 
-    public List<String> getLsFileList() throws NotDirectoryException, NoSuchFileException {
-        return getLsFileList(currentDir.getAbsolutePath());
+    public OutputStream fileOutputStream(String name) throws FtpException, IOException {
+        return fileSystem.getFile(name).createOutputStream(0);
     }
 
-    public List<String> getLsFileList(String dir) throws NotDirectoryException, NoSuchFileException {
-        File file = getLocalFile(dir);
-        log.debug(String.format("file list from directory [%s]", file.getAbsolutePath()));
-        return getFileList(file).stream().map(this::makeLsString).collect(Collectors.toList());
+    public List<String> getLsFileList() throws NotDirectoryException, NoSuchFileException, FtpException {
+
+        return getLsFileList(fileSystem.getWorkingDirectory().getAbsolutePath());
     }
 
-    private List<File> getFileList(File file) throws NotDirectoryException {
-        if (file.isDirectory()) return Arrays.asList(file.listFiles());
-        else throw new NotDirectoryException(file.getAbsolutePath());
+    public List<String> getLsFileList(String dir) throws NotDirectoryException, NoSuchFileException, FtpException {
+        log.debug(String.format("file list from directory [%s]", dir));
+        FtpFile file = fileSystem.getFile(dir);
+        if (!file.isDirectory()) throw new NotDirectoryException(dir);
+        return file.listFiles().stream()
+                .map(o -> (File) o.getPhysicalFile())
+                .map(this::makeLsString).collect(Collectors.toList());
     }
 
     public File getLocalFile(String arg) {
@@ -115,8 +121,8 @@ public class FileSystem {
         return response.toString();
     }
 
-    public String getPath() {
+    public String getPath() throws FtpException {
 
-        return currentDir.getAbsolutePath();
+        return fileSystem.getWorkingDirectory().getAbsolutePath();
     }
 }

@@ -1,5 +1,6 @@
 package rk.commands;
 
+import org.apache.ftpserver.ftplet.FtpException;
 import rk.core.FtpSession;
 import rk.exceptions.FTPError550Exception;
 
@@ -21,7 +22,7 @@ public class PWDCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, FTPError550Exception {
+    public void execute() throws IOException, FTPError550Exception, FtpException {
         session.getControlConnection().writeSequence("257 ");
         byte[] bytes = session.getFileSystem().getPath().getBytes(StandardCharsets.UTF_8);
         String s = new String(bytes);

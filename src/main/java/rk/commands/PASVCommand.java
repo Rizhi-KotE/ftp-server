@@ -1,11 +1,17 @@
 package rk.commands;
 
 import rk.core.FtpSession;
-import rk.exceptions.FTPError530Exception;
-import rk.exceptions.FTPError502Exception;
 import rk.exceptions.FTPError501Exception;
+import rk.exceptions.FTPError502Exception;
+import rk.exceptions.FTPError530Exception;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Syntax: PASV<br>
@@ -27,6 +33,28 @@ public class PASVCommand implements Command {
 
     @Override
     public void execute() throws IOException, FTPError501Exception, FTPError530Exception, FTPError502Exception {
-        throw new FTPError502Exception("PASV");//TODO
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+            try {
+                ServerSocket serverSocket = new ServerSocket(0);
+                String hostAddress = serverSocket.getInetAddress().getHostAddress();
+                hostAddress = String.join(",", hostAddress.split("\\."));
+                int localPort = serverSocket.getLocalPort();
+                String message = hostAddress + "," + localPort / 256 + "," + localPort % 256;
+                session.getControlConnection().write(String.format("227 Entering Passive Mode (%s)\r\n", message));
+                Socket accept = serverSocket.accept();
+                session.putDataConnection(accept);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            voidCompletableFuture.get(10000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }

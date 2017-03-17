@@ -22,7 +22,8 @@ public enum FTPCommands {
     RETR((session, args) -> new RETRCommand(session, args)),
     EPRT((session, args) -> new EPRTCommand(session, args)),
     SYST((session, args) -> new SYSTCommand(session, args)),
-    QUIT((session, args) -> new QUITCommand(session, args));
+    QUIT((session, args) -> new QUITCommand(session, args)),
+    PASV((session, args) -> new PASVCommand(session, args));
 
     private BiFunction<FtpSession, String[], Command> creator;
 
