@@ -30,7 +30,12 @@ public class CWDCommand implements Command {
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
         try {
-            if (args.length == 0) throw new FTPError501Exception("CWD", Arrays.toString(args));
+            if (args.length >= 1){
+                args[0] = String.join(" ", args);
+            }
+            else {
+                throw new FTPError501Exception("CWD", Arrays.toString(args));
+            }
             session.getFileSystem().changeDir(args[0]);
             session.getControlConnection().write(MESSAGE_200);
         } catch (NoSuchFileException e) {

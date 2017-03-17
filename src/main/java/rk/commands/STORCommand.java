@@ -1,11 +1,14 @@
 package rk.commands;
 
 import rk.core.FtpSession;
+import rk.exceptions.FTPError501Exception;
 import rk.exceptions.FtpErrorReplyException;
 import rk.exceptions.NoSuchMessageException;
-import rk.exceptions.FTPError501Exception;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 import static rk.utils.Messages.MESSAGE_150;
@@ -30,16 +33,20 @@ public class STORCommand implements Command {
      */
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        if(args.length != 1) throw new FTPError501Exception("STOR", Arrays.toString(args));
+        if (args.length >= 1) {
+            args[0] = String.join(" ", args);
+        } else {
+            throw new FTPError501Exception("STOR", Arrays.toString(args));
+        }
         File localFile = ftpSession.getFileSystem().getLocalFile(args[0]);
-        if(!localFile.exists()) ftpSession.getFileSystem().createFile(args[0]);
+        if (!localFile.exists()) ftpSession.getFileSystem().createFile(args[0]);
         ftpSession.getControlConnection().write(MESSAGE_150);
         doWork(localFile);
         ftpSession.getControlConnection().write(MESSAGE_226);
     }
 
     private void doWork(File localFile) throws IOException {
-        try(OutputStream fos = new FileOutputStream(localFile)){
+        try (OutputStream fos = new FileOutputStream(localFile)) {
             ftpSession.getDataConnection().readTo(fos);
             ftpSession.getDataConnection().close();
         }
