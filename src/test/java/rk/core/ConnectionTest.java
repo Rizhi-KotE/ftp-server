@@ -44,6 +44,13 @@ public class ConnectionTest {
     }
 
     @Test
+    public void testNameWithWhiteSpaces() throws Exception {
+        in.write("CWD /System Volume\n".getBytes(StandardCharsets.UTF_8));
+        String s = connection.readLine();
+        assertEquals("CWD /System Volume", s);
+    }
+
+    @Test
     public void checkMessageWithCharsetASKIITrue() throws Exception {
         in.write("list downloads\n".getBytes(StandardCharsets.US_ASCII));
         String s = connection.readLine();

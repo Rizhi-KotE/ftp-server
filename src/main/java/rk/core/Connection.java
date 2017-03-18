@@ -37,9 +37,14 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//        String s = bufferedReader.readLine();
         Scanner scanner = new Scanner(bis, charset);
+        scanner.useDelimiter("\n");
         String message = scanner.nextLine();
-        log.debug(message);
+
+        log.info(String.format("READ LINE [%s]\n", message));
+//        log.debug(message);
         return message;
     }
 

@@ -52,11 +52,15 @@ public class FileSystem {
     }
 
     public List<String> getLsFileList(String dir) throws NotDirectoryException, NoSuchFileException, FtpException {
-        log.debug(String.format("file list from directory [%s]", dir));
+        log.info(String.format("file list from directory [%s]", dir));
         FtpFile file = fileSystem.getFile(dir);
         if (!file.isDirectory()) throw new NotDirectoryException(dir);
-        return file.listFiles().stream()
+        List<? extends FtpFile> ftpFiles = file.listFiles();
+        if (ftpFiles == null) throw new NoSuchFileException(dir);
+        return ftpFiles.stream()
                 .map(o -> (File) o.getPhysicalFile())
+                .filter(File::canRead)
+                .filter(File::canWrite)
                 .map(this::makeLsString).collect(Collectors.toList());
     }
 

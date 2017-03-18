@@ -50,9 +50,12 @@ public class CommandInterpreter implements Runnable {
 
     public void executeCommand() throws Exception {
         try {
-            String[] tokens = connection.readLine().split(" ");
+            String inputLine = connection.readLine();
+            log.info(String.format("ACCEPT LINE: [%s]", inputLine));
+            String[] tokens = inputLine.split(" ");
             String[] args = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (tokens.length < 1) return;
+            log.info(String.format("ACCEPT COMMAND: [%s]", String.join(" ", tokens)));
             FTPCommands.createCommand(tokens[0], session, args).execute();
         } catch (FTPQuitException e) {
             log.debug("", e);
@@ -63,6 +66,9 @@ public class CommandInterpreter implements Runnable {
             log.debug("", e);
             connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
+        } catch (Exception e) {
+            log.debug("", e);
+            connection.write("452 Ошибка при записи файла (недостаточно места)\r\n");
         }
     }
 
