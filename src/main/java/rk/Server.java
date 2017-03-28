@@ -1,10 +1,14 @@
 package rk;
 
 import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
+import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.log4j.Logger;
 
 import java.net.ServerSocket;
+
+import static java.util.Arrays.asList;
 
 
 public class Server implements Runnable {
@@ -26,9 +30,22 @@ public class Server implements Runnable {
             while (!Thread.interrupted()) {
                 BaseUser baseUser = new BaseUser();
                 baseUser.setHomeDirectory(userDir);
+                Authority authority = new Authority() {
+
+                    @Override
+                    public boolean canAuthorize(AuthorizationRequest request) {
+                        return true;
+                    }
+
+                    @Override
+                    public AuthorizationRequest authorize(AuthorizationRequest request) {
+                        return request;
+                    }
+                };
+                baseUser.setAuthorities(asList(authority));
                 ConnectionExecutor executor = new ConnectionExecutor(ss.accept(),
                         nativeFileSystemFactory.createFileSystemView(baseUser));
-                new Thread(() -> executor.run()).start();
+                new Thread(executor::run).start();
             }
         } catch (Exception e) {
             log.error("", e);

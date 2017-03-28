@@ -9,4 +9,6 @@ public class Messages {
     public static final String MESSAGE_331 = "331 User name okay, need password.\r\n";
     public static final String MESSAGE_230 = "230 User logged in, proceed.\r\n";
     public static final String MESSAGE_452 = "452 Requested action not taken.\r\n";
+    public static final String MESSAGE_450 = "450 Requested file action not taken.\r\n";
+    public static final String MESSAGE_250 = "250 Requested file action okay, completed.\r\n";
 }

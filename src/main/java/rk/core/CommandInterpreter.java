@@ -39,7 +39,7 @@ public class CommandInterpreter implements Runnable {
             connection.write(MESSAGE_220);
             while (!stopped)
                 executeCommand();
-        } catch (NoSuchElementException e) {//connection closed
+        } catch (NoSuchElementException | SocketException e) {//connection closed
             log.trace("", e);
             log.info("connection is closed");
         } catch (Exception e) {
@@ -69,11 +69,6 @@ public class CommandInterpreter implements Runnable {
             log.trace("", e);
             connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
-        } catch (SocketException e) {
-            log.trace("", e);
-        } catch (Exception e) {
-            log.error("", e);
-            connection.write(MESSAGE_452);
         }
     }
 

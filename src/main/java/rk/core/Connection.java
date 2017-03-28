@@ -39,7 +39,8 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-        try (Scanner scanner = new Scanner(bis, charset)) {
+        try {
+            Scanner scanner = new Scanner(bis, charset);
             scanner.useDelimiter("\n");
             String message = scanner.nextLine();
 
@@ -58,7 +59,7 @@ public class Connection {
 
     public void writeFrom(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[DEFAULT_BUFFER_SIZE];
-        for (int readen; (readen = inputStream.read(bytes)) != -1; ) {
+        for (int readen; (readen = inputStream.read(bytes)) != -1 && !Thread.interrupted(); ) {
             bos.write(bytes, 0, readen);
         }
         bos.flush();
@@ -66,7 +67,7 @@ public class Connection {
 
     public void readTo(OutputStream os) throws IOException {
         byte[] bytes = new byte[DEFAULT_BUFFER_SIZE];
-        for (int readen; (readen = bis.read(bytes)) != -1; ) {
+        for (int readen; (readen = bis.read(bytes)) != -1 && !Thread.interrupted(); ) {
             os.write(bytes, 0, readen);
         }
         os.flush();

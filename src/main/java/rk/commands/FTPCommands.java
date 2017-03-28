@@ -25,6 +25,8 @@ public enum FTPCommands {
     EPRT((session, args) -> new EPRTCommand(session, args)),
     SYST((session, args) -> new SYSTCommand(session, args)),
     QUIT((session, args) -> new QUITCommand(session, args)),
+    ABOR((session, args) -> new ABORCommand(session, args)),
+    DELE((session, args) -> new DELEComand(session, args)),
     PASV((session, args) -> new PASVCommand(session, args));
 
     static final Logger log = Logger.getLogger(FTPCommands.class);

@@ -4,10 +4,12 @@ import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.log4j.Logger;
 import rk.exceptions.FTPError425Exception;
+import rk.exceptions.FTPError450Exception;
 import rk.exceptions.FTPError530Exception;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
 
 public class FtpSession {
 
@@ -18,6 +20,7 @@ public class FtpSession {
     private Connection dataConnection;
     private Thread currentTask;
     private boolean logged = false;
+    private CompletableFuture<Void> task;
 
     public FtpSession(Connection controlConnection, FileSystemView view) throws IOException, FtpException {
         this.controlConnection = controlConnection;
@@ -76,5 +79,24 @@ public class FtpSession {
     public void putDataConnection(Socket socket) throws IOException {
         if (dataConnection != null) dataConnection.close();
         dataConnection = new Connection(socket);
+    }
+
+    public boolean isTaskRuned() {
+        return task != null && task.isDone();
+    }
+
+    public void putTask(CompletableFuture<Void> voidCompletableFuture) throws FTPError450Exception {
+        if (isTaskRuned()) {
+            log.debug("Task've already runned");
+            throw new FTPError450Exception();
+        }
+        this.task = voidCompletableFuture;
+    }
+
+    public void stopTask() {
+        if (task != null) {
+            task.cancel(true);
+            task = null;
+        }
     }
 }

@@ -3,7 +3,7 @@ package rk.commands;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.log4j.Logger;
 import rk.core.FtpSession;
-import rk.exceptions.FTPError425Exception;
+import rk.exceptions.FTPError450Exception;
 import rk.exceptions.FTPError501Exception;
 import rk.exceptions.FtpErrorReplyException;
 import rk.exceptions.NoSuchMessageException;
@@ -12,10 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
+import static rk.exceptions.ExceptionHandleUtils.handle;
 import static rk.utils.Messages.MESSAGE_150;
 import static rk.utils.Messages.MESSAGE_226;
+import static rk.utils.Messages.MESSAGE_450;
 
 /**
  * Syntax: RETR remote-filename<br>
@@ -34,24 +37,39 @@ public class RETRCommand implements Command {
     }
 
     @Override
-    public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
+    public void execute() throws IOException, NoSuchMessageException, FTPError501Exception, FTPError450Exception {
+        if (args.length >= 1) {
+            args[0] = String.join(" ", args);
+        } else {
+            throw new FTPError501Exception("RETR", Arrays.toString(args));
+        }
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(this::runWork);
+        ftpSession.putTask(voidCompletableFuture);
+    }
+
+    private void runWork() {
         try {
-            if (args.length >= 1) {
-                args[0] = String.join(" ", args);
-            } else {
-                throw new FTPError501Exception("RETR", Arrays.toString(args));
-            }
             ftpSession.getControlConnection().write(MESSAGE_150);
             try (InputStream inputStream = ftpSession.getFileSystem().fileInputSteam(args[0])) {
                 ftpSession.getDataConnection().writeFrom(inputStream);
                 ftpSession.getDataConnection().close();
             }
-            ftpSession.getControlConnection().write(MESSAGE_226);
+            handleWorkEnd();
         } catch (NoSuchFileException e) {
             log.info(format("No such file [%s]", args[0]));
             log.trace("", e);
-        } catch (FtpException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            handle(log, ftpSession, e);
         }
+    }
+
+    private void handleWorkEnd() throws IOException, FtpException, FTPError450Exception {
+        if (Thread.interrupted()) {
+            ftpSession.getFileSystem().removeFile(args[0]);
+            ftpSession.getControlConnection().write(MESSAGE_450);
+        } else {
+            ftpSession.getControlConnection().write(MESSAGE_226);
+        }
+        ftpSession.stopTask();
     }
 }

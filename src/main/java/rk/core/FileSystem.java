@@ -4,6 +4,7 @@ import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
+import rk.exceptions.FTPError450Exception;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +28,9 @@ public class FileSystem {
     private File currentDir;
 
     public FileSystem(FileSystemView fileSystem) throws FtpException {
-            log.debug(format("New file system view created. Root dir [%s]",
-                    fileSystem.getHomeDirectory().getAbsolutePath()));
-            this.fileSystem = fileSystem;
+        log.debug(format("New file system view created. Root dir [%s]",
+                fileSystem.getHomeDirectory().getAbsolutePath()));
+        this.fileSystem = fileSystem;
     }
 
     public void changeDir(String s) throws IOException, FtpException {
@@ -57,8 +58,8 @@ public class FileSystem {
         if (ftpFiles == null) throw new NoSuchFileException(dir);
         return ftpFiles.stream()
                 .map(o -> (File) o.getPhysicalFile())
-                .filter(File::canRead)
-                .filter(File::canWrite)
+//                .filter(File::canRead)
+//                .filter(File::canWrite)
                 .map(this::makeLsString).collect(Collectors.toList());
     }
 
@@ -126,5 +127,16 @@ public class FileSystem {
     public String getPath() throws FtpException {
 
         return fileSystem.getWorkingDirectory().getAbsolutePath();
+    }
+
+    public void removeFile(String arg) throws FtpException, NoSuchFileException, FTPError450Exception {
+        FtpFile file = fileSystem.getFile(arg);
+        if(!file.doesExist()) throw new NoSuchFileException(file.getAbsolutePath());
+        if (file.isRemovable()) {
+            File physicalFile = (File) file.getPhysicalFile();
+            if(!physicalFile.delete()) throw new FTPError450Exception();
+        } else {
+            throw new FTPError450Exception();
+        }
     }
 }
