@@ -1,21 +1,25 @@
 package rk.core;
 
 import org.apache.ftpserver.ftplet.FileSystemView;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.log4j.Logger;
+import rk.exceptions.FTPError425Exception;
 import rk.exceptions.FTPError530Exception;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
 public class FtpSession {
+
+    private static final Logger log = Logger.getLogger(FtpSession.class);
+    private final FileSystem fileSystem;
     private Connection controlConnection;
     private String user;
     private Connection dataConnection;
     private Thread currentTask;
     private boolean logged = false;
-    private final FileSystem fileSystem;
 
-    public FtpSession(Connection controlConnection, FileSystemView view) throws IOException {
+    public FtpSession(Connection controlConnection, FileSystemView view) throws IOException, FtpException {
         this.controlConnection = controlConnection;
         fileSystem = new FileSystem(view);
     }
@@ -57,18 +61,20 @@ public class FtpSession {
         return fileSystem;
     }
 
-    public Connection getDataConnection() {
+    public Connection getDataConnection() throws FTPError425Exception {
+        if (dataConnection == null && dataConnection.isClosed()) throw new FTPError425Exception();
         return dataConnection;
     }
 
     public void putDataConnection(String host, int i) throws IOException {
+
         Socket socket = new Socket(host, i);
-        if(dataConnection != null) dataConnection.close();
+        if (dataConnection != null) dataConnection.close();
         dataConnection = new Connection(socket);
     }
 
     public void putDataConnection(Socket socket) throws IOException {
-        if(dataConnection != null) dataConnection.close();
+        if (dataConnection != null) dataConnection.close();
         dataConnection = new Connection(socket);
     }
 }

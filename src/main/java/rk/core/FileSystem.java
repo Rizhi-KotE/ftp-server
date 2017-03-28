@@ -17,26 +17,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 public class FileSystem {
-    //copypaste from
-    //https://github.com/mikeweib/Android_FTP/blob/master/src/com/swiftp/CmdLIST.java
+
     public final static long MS_IN_SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000;
     static final Logger log = Logger.getLogger(FileSystem.class);
     private final FileSystemView fileSystem;
     private File currentDir;
 
-    public FileSystem(FileSystemView fileSystem) {
-        this.fileSystem = fileSystem;
+    public FileSystem(FileSystemView fileSystem) throws FtpException {
+            log.debug(format("New file system view created. Root dir [%s]",
+                    fileSystem.getHomeDirectory().getAbsolutePath()));
+            this.fileSystem = fileSystem;
     }
 
     public void changeDir(String s) throws IOException, FtpException {
         fileSystem.changeWorkingDirectory(s);
     }
-
-//    public boolean createFile(String fileName) throws IOException, FtpException {
-//        FtpFile file = fileSystem.getFile(fileName);
-//        file.get
-//    }
 
     public InputStream fileInputSteam(String name) throws FtpException, IOException {
         return fileSystem.getFile(name).createInputStream(0);
@@ -52,7 +50,7 @@ public class FileSystem {
     }
 
     public List<String> getLsFileList(String dir) throws NotDirectoryException, NoSuchFileException, FtpException {
-        log.info(String.format("file list from directory [%s]", dir));
+        log.info(format("file list from directory [%s]", dir));
         FtpFile file = fileSystem.getFile(dir);
         if (!file.isDirectory()) throw new NotDirectoryException(dir);
         List<? extends FtpFile> ftpFiles = file.listFiles();

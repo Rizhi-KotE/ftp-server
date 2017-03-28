@@ -6,6 +6,8 @@ import rk.exceptions.FTPError502Exception;
 
 import java.util.function.BiFunction;
 
+import static java.lang.String.format;
+
 /**
  * Used to create command object
  */
@@ -25,23 +27,17 @@ public enum FTPCommands {
     QUIT((session, args) -> new QUITCommand(session, args)),
     PASV((session, args) -> new PASVCommand(session, args));
 
+    static final Logger log = Logger.getLogger(FTPCommands.class);
     private BiFunction<FtpSession, String[], Command> creator;
 
     FTPCommands(BiFunction<FtpSession, String[], Command> creator) {
         this.creator = creator;
     }
 
-    public Command createCommand(FtpSession session, String[] args) {
-        return creator.apply(session, args);
-    }
-
-    static final Logger log = Logger.getLogger(FTPCommands.class);
-
     /**
-     *
      * @param command - FTP command name
      * @param session - FTP session
-     * @param args - command args
+     * @param args    - command args
      * @return - command instance
      * @throws FTPError502Exception when command is not implemented
      */
@@ -49,8 +45,13 @@ public enum FTPCommands {
         try {
             return valueOf(command).creator.apply(session, args);
         } catch (IllegalArgumentException e) {
-            log.debug("No such command", e);
+            log.debug(format("No such command [%s]", command));
+            log.trace("", e);
             throw new FTPError502Exception(command);
         }
+    }
+
+    public Command createCommand(FtpSession session, String[] args) {
+        return creator.apply(session, args);
     }
 }

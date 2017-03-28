@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import static java.lang.String.format;
 import static rk.utils.Messages.*;
 
 /**
@@ -37,13 +38,13 @@ public class CommandInterpreter implements Runnable {
             while (!stopped)
                 executeCommand();
         } catch (NoSuchElementException e) {//connection closed
-            log.debug("", e);
+            log.trace("", e);
             log.info("connection is closed");
         } catch (Exception e) {
-            log.debug(e, e);
+            log.trace(e, e);
         } finally {
             stopInterpreter();
-            log.debug("inputStream is destroyed");
+            log.trace("inputStream is destroyed");
         }
     }
 
@@ -51,24 +52,24 @@ public class CommandInterpreter implements Runnable {
     public void executeCommand() throws Exception {
         try {
             String inputLine = connection.readLine();
-            log.info(String.format("ACCEPT LINE: [%s]", inputLine));
+            log.info(format("ACCEPT LINE: [%s]", inputLine));
             String[] tokens = inputLine.split(" ");
             String[] args = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (tokens.length < 1) return;
-            log.info(String.format("ACCEPT COMMAND: [%s]", String.join(" ", tokens)));
+            log.info(format("ACCEPT COMMAND: [%s]", String.join(" ", tokens)));
             FTPCommands.createCommand(tokens[0], session, args).execute();
         } catch (FTPQuitException e) {
-            log.debug("", e);
+            log.trace("", e);
             connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
             stopInterpreter();
         } catch (FtpErrorReplyException e) {
-            log.debug("", e);
+            log.trace("", e);
             connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
         } catch (Exception e) {
-            log.debug("", e);
-            connection.write("452 Ошибка при записи файла (недостаточно места)\r\n");
+            log.trace("", e);
+            connection.write(MESSAGE_452);
         }
     }
 

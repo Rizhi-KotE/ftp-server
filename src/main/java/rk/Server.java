@@ -31,7 +31,7 @@ public class Server implements Runnable {
                 new Thread(() -> executor.run()).start();
             }
         } catch (Exception e) {
-            log.debug("", e);
+            log.trace("", e);
         } finally {
             log.info(String.format("server stopped"));
         }

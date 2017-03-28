@@ -8,4 +8,5 @@ public class Messages {
     public static final String MESSAGE_200 = "200 Command okay.\r\n";
     public static final String MESSAGE_331 = "331 User name okay, need password.\r\n";
     public static final String MESSAGE_230 = "230 User logged in, proceed.\r\n";
+    public static final String MESSAGE_452 = "452 Requested action not taken.\r\n";
 }

@@ -1,5 +1,6 @@
 package rk.commands;
 
+import org.apache.log4j.Logger;
 import rk.core.FtpSession;
 import rk.exceptions.FTPError501Exception;
 import rk.exceptions.FTPError502Exception;
@@ -23,6 +24,8 @@ import java.util.concurrent.TimeoutException;
  * where a1.a2.a3.a4 is the IP address and p1*256+p2 is the port number.
  */
 public class PASVCommand implements Command {
+    public static final Logger log = Logger.getLogger(PASVCommand.class);
+
     private final FtpSession session;
     private final String[] args;
 
@@ -49,12 +52,8 @@ public class PASVCommand implements Command {
         });
         try {
             voidCompletableFuture.get(10000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            log.trace("", e);
         }
     }
 }

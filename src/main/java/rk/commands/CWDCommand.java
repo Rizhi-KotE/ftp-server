@@ -43,7 +43,7 @@ public class CWDCommand implements Command {
         } catch (NoSuchFileException e) {
             throw new FTPError550Exception(String.format("File is not exists [%s]", args[0]));
         } catch (FtpException e) {
-            log.debug(e, e);
+            log.trace(e, e);
         }
     }
 }

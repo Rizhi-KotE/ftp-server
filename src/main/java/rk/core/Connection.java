@@ -23,12 +23,12 @@ public class Connection {
 
     public void write(String message) throws IOException {
         bos.write(message.getBytes(StandardCharsets.UTF_8));
-        log.debug(message);
+        log.trace(message);
         bos.flush();
     }
 
     public void writeSequence(String message) throws IOException {
-        log.debug(message);
+        log.trace(message);
         bos.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -37,19 +37,16 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//        String s = bufferedReader.readLine();
         Scanner scanner = new Scanner(bis, charset);
         scanner.useDelimiter("\n");
         String message = scanner.nextLine();
 
-        log.info(String.format("READ LINE [%s]\n", message));
-//        log.debug(message);
+        log.trace(String.format("READ LINE [%s]\n", message));
         return message;
     }
 
     public void close() throws IOException {
-        log.debug("CLOSE CONNECTION");
+        log.trace("CLOSE CONNECTION");
         socket.close();
     }
 
@@ -71,5 +68,9 @@ public class Connection {
 
     public void setCharset(String charset) {
         this.charset = charset;
+    }
+
+    public boolean isClosed() {
+        return socket.isClosed();
     }
 }

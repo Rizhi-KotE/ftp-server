@@ -1,17 +1,21 @@
 package rk.commands;
 
 import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.log4j.Logger;
 import rk.core.FtpSession;
 import rk.exceptions.FTPError550Exception;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
+import static java.lang.String.format;
 
 /**
  * Syntax: PWD<br>
  * Returns the name of the current directory on the remote host.
  */
 public class PWDCommand implements Command {
+    public static final Logger log = Logger.getLogger(PWDCommand.class);
+
     private final FtpSession session;
     private final String[] args;
 
@@ -23,12 +27,9 @@ public class PWDCommand implements Command {
 
     @Override
     public void execute() throws IOException, FTPError550Exception, FtpException {
-        session.getControlConnection().writeSequence("257 ");
-        byte[] bytes = session.getFileSystem().getPath().getBytes(StandardCharsets.UTF_8);
-        String s = new String(bytes);
-        session.getControlConnection().writeSequence(s);
-        session.getControlConnection().writeSequence("\r\n");
-        session.getControlConnection().flush();
+        String path = session.getFileSystem().getPath();
+        log.info(format("Current working directory [%s]", path));
+        session.getControlConnection().write(format("257 \"%s\"\r\n", path));
     }
 
 }
