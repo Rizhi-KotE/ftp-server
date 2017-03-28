@@ -4,12 +4,14 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Connection {
     final static Logger log = Logger.getLogger(Connection.class);
-    public static int DEFAULT_BUFFER_SIZE = 8192;
+    private static final int DEFAULT_BUFFER_SIZE = 8192;
     private final BufferedInputStream bis;
     private final BufferedOutputStream bos;
     private Socket socket;
@@ -37,16 +39,20 @@ public class Connection {
     }
 
     public String readLine() throws IOException {
-        Scanner scanner = new Scanner(bis, charset);
-        scanner.useDelimiter("\n");
-        String message = scanner.nextLine();
+        try (Scanner scanner = new Scanner(bis, charset)) {
+            scanner.useDelimiter("\n");
+            String message = scanner.nextLine();
 
-        log.trace(String.format("READ LINE [%s]\n", message));
-        return message;
+            log.debug(String.format("READ LINE [%s]\n", message));
+            return message;
+        } catch (NoSuchElementException e) {
+            log.info("Control connection was closed");
+            throw new SocketException("Socket was closed");
+        }
     }
 
     public void close() throws IOException {
-        log.trace("CLOSE CONNECTION");
+        log.debug("CLOSE CONNECTION");
         socket.close();
     }
 

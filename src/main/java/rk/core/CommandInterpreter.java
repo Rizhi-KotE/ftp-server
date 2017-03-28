@@ -1,15 +1,17 @@
 package rk.core;
 
+import org.apache.log4j.Logger;
 import rk.commands.FTPCommands;
 import rk.exceptions.FTPQuitException;
 import rk.exceptions.FtpErrorReplyException;
-import org.apache.log4j.Logger;
 
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import static java.lang.String.format;
-import static rk.utils.Messages.*;
+import static rk.utils.Messages.MESSAGE_220;
+import static rk.utils.Messages.MESSAGE_452;
 
 /**
  * Read commands from control connection and execute it.
@@ -67,8 +69,10 @@ public class CommandInterpreter implements Runnable {
             log.trace("", e);
             connection.write(e.getReplyMessage());
             log.info(e.getReplyMessage());
-        } catch (Exception e) {
+        } catch (SocketException e) {
             log.trace("", e);
+        } catch (Exception e) {
+            log.error("", e);
             connection.write(MESSAGE_452);
         }
     }

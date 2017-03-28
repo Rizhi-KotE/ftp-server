@@ -1,17 +1,19 @@
 package rk.commands;
 
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.log4j.Logger;
 import rk.core.FtpSession;
+import rk.exceptions.FTPError425Exception;
 import rk.exceptions.FTPError501Exception;
-import rk.exceptions.FTPError550Exception;
 import rk.exceptions.FtpErrorReplyException;
 import rk.exceptions.NoSuchMessageException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
 
+import static java.lang.String.format;
 import static rk.utils.Messages.MESSAGE_150;
 import static rk.utils.Messages.MESSAGE_226;
 
@@ -21,6 +23,8 @@ import static rk.utils.Messages.MESSAGE_226;
  * Must be preceded by either a PORT command or a PASV command to indicate where the server should send data.
  */
 public class RETRCommand implements Command {
+    public static final Logger log = Logger.getLogger(RETRCommand.class);
+
     private String[] args;
     private FtpSession ftpSession;
 
@@ -31,22 +35,23 @@ public class RETRCommand implements Command {
 
     @Override
     public void execute() throws IOException, FtpErrorReplyException, NoSuchMessageException {
-        if (args.length >= 1) {
-            args[0] = String.join(" ", args);
-        } else {
-            throw new FTPError501Exception("RETR", Arrays.toString(args));
-        }
-        File localFile = ftpSession.getFileSystem().getLocalFile(args[0]);
-        if (!localFile.exists()) throw new FTPError550Exception(String.format("File is not exists [%s]", args[0]));
-        ftpSession.getControlConnection().write(MESSAGE_150);
-        doWork(localFile);
-        ftpSession.getControlConnection().write(MESSAGE_226);
-    }
-
-    private void doWork(File localFile) throws IOException {
-        try (InputStream inputStream = new FileInputStream(localFile)) {
-            ftpSession.getDataConnection().writeFrom(inputStream);
-            ftpSession.getDataConnection().close();
+        try {
+            if (args.length >= 1) {
+                args[0] = String.join(" ", args);
+            } else {
+                throw new FTPError501Exception("RETR", Arrays.toString(args));
+            }
+            ftpSession.getControlConnection().write(MESSAGE_150);
+            try (InputStream inputStream = ftpSession.getFileSystem().fileInputSteam(args[0])) {
+                ftpSession.getDataConnection().writeFrom(inputStream);
+                ftpSession.getDataConnection().close();
+            }
+            ftpSession.getControlConnection().write(MESSAGE_226);
+        } catch (NoSuchFileException e) {
+            log.info(format("No such file [%s]", args[0]));
+            log.trace("", e);
+        } catch (FtpException e) {
+            log.error("", e);
         }
     }
 }
